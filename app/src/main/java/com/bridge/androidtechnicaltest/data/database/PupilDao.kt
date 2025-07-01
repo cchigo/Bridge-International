@@ -26,8 +26,6 @@ interface PupilDao : PupilLocalDataSource {
     @Update
     override suspend fun updatePupil(pupil: PupilEntity)
 
-    @Query("DELETE FROM pupils_table WHERE pupilId = :pupilId")
-    override suspend fun deletePupilById(pupilId: Int)
 
     @Query("SELECT * FROM pupils_table WHERE is_synced = 0  OR is_synced IS NULL")
     override suspend fun getUnsyncedPupils(): List<PupilEntity>
@@ -42,6 +40,11 @@ interface PupilDao : PupilLocalDataSource {
     @Query("SELECT * FROM pupils_table WHERE pupilId = :id")
     override suspend fun searchById(id: Long): PupilEntity?
 
+    @Query("DELETE FROM pupils_table WHERE pupilId = :pupilId")
+    override suspend fun deletePupilById(pupilId: Int)
+
+    @Query("SELECT * FROM pupils_table WHERE is_deleted = 1")
+    suspend fun getDeletedPupils(): List<PupilEntity>
 
     @Query("DELETE FROM pupils_table")
     override suspend fun deleteAllPupils()

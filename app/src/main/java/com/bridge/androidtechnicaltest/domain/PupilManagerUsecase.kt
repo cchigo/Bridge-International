@@ -22,7 +22,7 @@ class PupilManagerUsecase @Inject constructor(
     private val networkChecker: NetworkChecker
 ) {
 
-    suspend fun insertInDb(pupilEntity: PupilEntity) {
+    private suspend fun insertInDb(pupilEntity: PupilEntity) {
         try {
             localDataSource.insertPupil(pupilEntity)
         } catch (e: Exception) {

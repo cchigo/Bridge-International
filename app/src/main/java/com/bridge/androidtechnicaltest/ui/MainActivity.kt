@@ -1,32 +1,38 @@
 package com.bridge.androidtechnicaltest.ui
 
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
-import androidx.appcompat.app.AppCompatActivity
-import com.bridge.androidtechnicaltest.R
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.chichi.projectsetupapp.ui.theme.ProjectSetupAppTheme
+import dagger.hilt.android.AndroidEntryPoint
 
-class MainActivity : AppCompatActivity() {
-    public override fun onCreate(savedInstanceState: Bundle?) {
+@AndroidEntryPoint
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        if (savedInstanceState == null) {
-            val fm = supportFragmentManager
-            fm.beginTransaction()
-                    .add(R.id.container, PupilListFragment())
-                    .commit()
-        }
-    }
+        enableEdgeToEdge()
+        setContent {
+            ProjectSetupAppTheme {
+                Scaffold( modifier = Modifier.fillMaxSize() ) { innerPadding ->
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.main_menu, menu)
-        return true
-    }
+                    Text("Hello!!")
+                    Spacer(modifier = Modifier.height(36.dp).padding(innerPadding))
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.action_reset) {
-            TODO("Implement actions")
+                }
+            }
         }
-        return super.onOptionsItemSelected(item)
     }
 }

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Android Technical Test</string>
+    <string name="app_name">AndroidTechnicalTest</string>
 
     <string name="pupil_detail_id">Id</string>
     <string name="pupil_detail_name">Name</string>
