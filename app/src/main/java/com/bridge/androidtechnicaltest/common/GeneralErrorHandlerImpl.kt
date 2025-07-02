@@ -15,27 +15,26 @@ object GeneralErrorHandlerImpl {
     const val CLIENT_ERROR_MESSAGE = "Something went wrong!"
     private const val TIMEOUT_ERROR_MESSAGE = "Request timed out"
 
-    fun getError(throwable: Throwable): BaseResponse<Nothing> {
-        return when (throwable) {
-            is UnknownHostException -> BaseResponse.Error(ErrorApiResponse(NO_INTERNET_MESSAGE))
-            is SocketException -> BaseResponse.Error(ErrorApiResponse(NETWORK_ERROR_MESSAGE))
-            is InterruptedIOException -> BaseResponse.Error(ErrorApiResponse(TIMEOUT_ERROR_MESSAGE))
+    fun getError(throwable: Throwable): BaseResponse.Error {
+        val errorResponse = when (throwable) {
+            is UnknownHostException -> ErrorApiResponse(title = NO_INTERNET_MESSAGE)
+            is SocketException -> ErrorApiResponse(title = NETWORK_ERROR_MESSAGE)
+            is InterruptedIOException -> ErrorApiResponse(title = TIMEOUT_ERROR_MESSAGE)
             is HttpException -> {
-                val errorResponse = convertErrorBody<ErrorApiResponse>(throwable)
-                when (errorResponse) {
-                    is ErrorApiResponse -> BaseResponse.Error(
-                        ErrorApiResponse(
-                        title = errorResponse.title ?: SERVER_ERROR_MESSAGE,
-                        status = errorResponse.status,
-                        type = errorResponse.type,
-                        traceId = errorResponse.traceId
-                    ))
-                    else -> BaseResponse.Error(ErrorApiResponse(SERVER_ERROR_MESSAGE))
-                }
+                val parsed = convertErrorBody<ErrorApiResponse>(throwable)
+                ErrorApiResponse(
+                    title = parsed?.title ?: SERVER_ERROR_MESSAGE,
+                    status = parsed?.status ?: throwable.code(),
+                    type = parsed?.type.orEmpty(),
+                    traceId = parsed?.traceId.orEmpty()
+                )
             }
-            else -> BaseResponse.Error(ErrorApiResponse("Unexpected error: ${throwable.message ?: "Unknown"}"))
+            else -> ErrorApiResponse(title = "Unexpected error: ${throwable.message.orEmpty()}")
         }
+
+        return BaseResponse.Error(errorResponse)
     }
+
 
 }
 

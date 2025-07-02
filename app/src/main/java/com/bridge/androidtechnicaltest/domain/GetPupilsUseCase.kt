@@ -45,7 +45,7 @@ class GetPupilsUseCase @Inject constructor(
                     saveRemoteListToDb(pupilRemoteList)
                 }
 
-                is BaseResponse.Error<*> -> {
+                is BaseResponse.Error -> {
                     emit(BaseResponse.Error(result.error))
                 }
 
@@ -77,9 +77,12 @@ class GetPupilsUseCase @Inject constructor(
         emit(BaseResponse.Loading)
 
         val localPupil = localDataSource.getPupilById(pupilId)
+        var emittedLocal = false
+
         if (localPupil != null) {
             val pupil = localMapper.from(localPupil)
             emit(BaseResponse.Success(pupil))
+            emittedLocal = true
         }
 
         if (networkChecker.isConnected()) {
@@ -96,13 +99,20 @@ class GetPupilsUseCase @Inject constructor(
                         isSynced = true,
                         timeStamp = generateTimestamp(),
                     )
-
                     localDataSource.insertPupil(local)
-
                 }
 
-                is BaseResponse.Error<*> -> emit(BaseResponse.Error(result.error))
-                else ->   BaseResponse.Error(ErrorApiResponse("Pupil not found, please try again"))
+                is BaseResponse.Error -> {
+                    if (!emittedLocal) {
+                        emit(BaseResponse.Error(result.error))
+                    }
+                }
+
+                else -> {
+                    if (!emittedLocal) {
+                        emit(BaseResponse.Error(ErrorApiResponse("Pupil not found, please try again")))
+                    }
+                }
             }
         } else if (localPupil == null) {
             emit(BaseResponse.Error(ErrorApiResponse("No internet and no local data")))

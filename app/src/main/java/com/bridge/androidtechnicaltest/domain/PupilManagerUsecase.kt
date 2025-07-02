@@ -66,7 +66,7 @@ class PupilManagerUsecase @Inject constructor(
                 emit(BaseResponse.Success(localMapper.from(syncedEntity)))
             }
 
-            is BaseResponse.Error<*> -> {
+            is BaseResponse.Error -> {
                 emit(BaseResponse.Error(result.error))
             }
 
@@ -100,7 +100,7 @@ class PupilManagerUsecase @Inject constructor(
                     emit(BaseResponse.Success(localMapper.from(syncedEntity)))
                 }
 
-                is BaseResponse.Error<*> -> {
+                is BaseResponse.Error -> {
 
                     emit(BaseResponse.Success(localMapper.from(entity)))
                 }
@@ -135,7 +135,7 @@ class PupilManagerUsecase @Inject constructor(
                 localDataSource.deletePupilById(pupil.pupilId)
                 emit(BaseResponse.Success(pupil.copy(isDeleted = true, isSynced = true)))
             }
-            is BaseResponse.Error<*> -> emit(BaseResponse.Error(result.error))
+            is BaseResponse.Error -> emit(BaseResponse.Error(result.error))
             else -> Unit
         }
 
