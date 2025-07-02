@@ -24,13 +24,15 @@ class GetPupilsViewmodel @Inject constructor(
     private val _pupilByIdState = MutableStateFlow<BaseResponse<Pupil>>(BaseResponse.Loading)
     val pupilByIdState: StateFlow<BaseResponse<Pupil>> = _pupilByIdState
 
-    fun loadPupils(page: Int = 1) {
+    fun loadPupils(page: Int = 4) {
+
         viewModelScope.launch {
-            getPupilsUseCase.getPupils(page).collect {
-                _pupilsState.value = it
+            getPupilsUseCase.getPupils(page).collect { response ->
+                _pupilsState.value = response
             }
         }
     }
+
 
     fun loadPupilById(pupilId: Int) {
         viewModelScope.launch {

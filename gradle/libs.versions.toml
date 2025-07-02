@@ -2,7 +2,7 @@
 compileSdkVersion = "35"
 minSdkVersion = "26"
 javaVersion = "17"
-agp = "8.3.2"
+agp = "8.6.0"
 kotlin = "2.0.0"
 ksp = "2.0.0-1.0.21"
 hilt = "2.51.1"
@@ -12,7 +12,7 @@ junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.9.1"
 activityCompose = "1.10.1"
-composeBom = "2024.04.01"
+composeBom = "2025.02.00"
 composeNavigationVersion = "2.8.4"
 navigationCommonAndroid = "2.9.0"
 room = "2.7.2"
@@ -20,7 +20,7 @@ gson = "2.11.0"
 kotlin-coroutines = "1.8.0"
 retrofit = "2.11.0"
 okhttp-bom = "4.12.0"
-kotlinx-serialization-json = "1.6.3"
+kotlinx-serialization = "1.6.3"
 work-runtime = "2.9.0"
 hiltCompose = "1.2.0"
 lifecycle = "2.7.0"
@@ -32,25 +32,26 @@ truth = "1.4.2"
 androidx-test = "1.6.1"
 androidx-arch-core = "2.2.0"
 composeTestJunit4 = "1.6.7"
+material3Android = "1.3.2"
 
 
-[plugins]
-android-application = { id = "com.android.application", version.ref = "agp" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-android-library = { id = "com.android.library", version.ref = "agp" }
-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+
 
 [libraries]
 # AndroidX and Compose libraries
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.8.0" }
+
 
 # Compose BOM
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+#androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "composeBom" } # <--- ENSURE THIS IS PRESENT
+
+
+androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
@@ -58,7 +59,9 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4", version.ref = "composeTestJunit4" }
-androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+#androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+
+#androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 
 # Navigation and Hilt Compose
 androidx-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "composeNavigationVersion" }
@@ -117,5 +120,19 @@ androidx-test-runner = { group = "androidx.test", name = "runner", version.ref =
 androidx-test-rules = { group = "androidx.test", name = "rules", version.ref = "androidx-test" }
 androidx-test-core = { group = "androidx.test", name = "core", version.ref = "androidx-test" }
 androidx-arch-core-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "androidx-arch-core" }
+androidx-material3-android = { group = "androidx.compose.material3", name = "material3-android", version.ref = "material3Android" }
 
 
+[bundles]
+androidx = ["androidx-core-ktx", "androidx-lifecycle-runtime-ktx", "androidx-activity-compose"]
+compose = ["androidx-ui", "androidx-ui-graphics", "androidx-ui-tooling-preview", "androidx-material3", "androidx-navigation", "kotlinx-serialization"]
+compose-debug = ["androidx-ui-tooling", "androidx-ui-test-manifest"]
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }

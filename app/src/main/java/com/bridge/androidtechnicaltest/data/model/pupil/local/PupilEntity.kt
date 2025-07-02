@@ -15,7 +15,7 @@ data class PupilEntity(
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
-    val id: Int? = 0 ,
+    val id: Int = 0,
 
     @ColumnInfo(name = "pupilId")
     val pupilId: Int?,

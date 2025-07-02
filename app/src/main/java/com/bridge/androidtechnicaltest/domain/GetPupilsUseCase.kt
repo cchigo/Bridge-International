@@ -61,9 +61,8 @@ class GetPupilsUseCase @Inject constructor(
 
     }
 
-    private suspend fun saveRemoteListToDb(
-        pupilRemoteList: List<PupilDTO>?
-    ) {
+
+    private suspend fun saveRemoteListToDb(pupilRemoteList: List<PupilDTO>?) {
         val mappedRemote = localMapper.toList(dtoMapper.fromList(pupilRemoteList))
         localDataSource.insertPupils(mappedRemote)
     }
