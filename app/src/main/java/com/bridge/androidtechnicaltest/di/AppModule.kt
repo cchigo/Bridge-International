@@ -13,10 +13,12 @@ import com.bridge.androidtechnicaltest.data.database.AppDatabase
 import com.bridge.androidtechnicaltest.data.database.AppDatabase.Companion.DB_NAME
 import com.bridge.androidtechnicaltest.data.database.PupilDao
 import com.bridge.androidtechnicaltest.data.database.PupilLocalDataSource
+import com.bridge.androidtechnicaltest.data.database.RemoteKeysDao
 import com.bridge.androidtechnicaltest.data.model.pupil.local.EntityModelMapper
 import com.bridge.androidtechnicaltest.data.model.pupil.remote.PupilDTOMapper
 import com.bridge.androidtechnicaltest.data.network.PupilApi
 import com.bridge.androidtechnicaltest.domain.PupilRepositoryImpl
+import com.bridge.androidtechnicaltest.domain.PupilsPagingRepository
 import com.bridge.androidtechnicaltest.domain.PupilsRepository
 import dagger.Binds
 import dagger.Module
@@ -104,6 +106,10 @@ object ApiModule {
         return appDatabase.pupilDao()
     }
 
+
+    @Provides
+    fun provideRemoteKeysDao(db: AppDatabase): RemoteKeysDao = db.remoteKeysDao()
+
     //
     @Provides
     fun provideEntityModelMapper(): EntityModelMapper {
@@ -115,6 +121,15 @@ object ApiModule {
         return PupilDTOMapper()
     }
 
+    @Provides
+    fun providePupilsPagingRepository(
+        db: AppDatabase,
+        api: PupilApi,
+        entityMapper: EntityModelMapper,
+        dtoMapper: PupilDTOMapper
+    ): PupilsPagingRepository {
+        return PupilsPagingRepository(db, api, entityMapper, dtoMapper)
+    }
     @Provides
      fun bindPupilsRepository(
         impl: PupilRepositoryImpl

@@ -1,5 +1,6 @@
 package com.bridge.androidtechnicaltest.data.database
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -29,6 +30,10 @@ interface PupilDao : PupilLocalDataSource {
 
     @Query("SELECT * FROM pupils_table WHERE is_synced = 0  OR is_synced IS NULL")
     override suspend fun getUnsyncedPupils(): List<PupilEntity>
+
+    @Query("SELECT * FROM pupils_table ORDER BY name ASC")
+    fun getPagedPupils(): PagingSource<Int, PupilEntity>
+
 
     //  Search methods
     @Query("SELECT * FROM pupils_table WHERE name LIKE '%' || :query || '%'")
