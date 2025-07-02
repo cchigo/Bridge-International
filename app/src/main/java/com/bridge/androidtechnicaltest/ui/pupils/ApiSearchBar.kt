@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -11,6 +12,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -19,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
@@ -55,20 +58,27 @@ fun ApiSearchBar(
             inputField = {
                 SearchBarDefaults.InputField(
                     query = query,
-                    onQueryChange = { query = it },
+                    onQueryChange = {
+
+                        query = it.filter { char -> char.isDigit() }
+                    },
                     onSearch = { onSearch(query.trim()) },
                     leadingIcon = {
                         Icon(imageVector = Icons.Default.Search, contentDescription = null)
                     },
                     placeholder = {
-                        Text(text = "Search Pupils")
+                        Text(text = "Search Pupils by ID")
                     },
                     expanded = false,
-                    onExpandedChange = {}
+                    onExpandedChange = {},
+
                 )
             },
+
             onExpandedChange = {},
             content = {}
         )
+
     }
 }
+//todo: ensure keyboard shows only numbers
