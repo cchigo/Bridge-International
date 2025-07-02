@@ -7,7 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.bridge.androidtechnicaltest.ui.login.PupilListScreen
-import com.bridge.androidtechnicaltest.ui.signup.SignUpScreen
+import com.bridge.androidtechnicaltest.ui.signup.PupilScreen
 import kotlinx.serialization.Serializable
 
 @Composable
@@ -26,9 +26,7 @@ fun AppRoot() {
             onNavigateToMain = {  },
             onNavigateUp = { navController.navigateUp() }
         )
-
     }
-
 
 }
 
@@ -38,7 +36,7 @@ data object HomeDestination
 
 fun NavGraphBuilder.pupilListScreen(
     onNavigateToMain: () -> Unit,
-    onNavigateToSignUp: (pupilId: Int) -> Unit,
+    onNavigateToSignUp: (pupilId: Int?) -> Unit,
 ) {
     composable<HomeDestination> {
         PupilListScreen(
@@ -52,7 +50,7 @@ fun NavGraphBuilder.pupilListScreen(
 
 @Serializable
 private data class PupilDestination(
-    val pupilId : Int
+    val pupilId: Int? = null
 )
 
 fun NavGraphBuilder.pupilScreen(
@@ -60,16 +58,16 @@ fun NavGraphBuilder.pupilScreen(
     onNavigateUp: () -> Unit
 ) {
     composable<PupilDestination> { backStackEntry ->
-        val emailId = backStackEntry.arguments?.getInt("pupilId")
-        SignUpScreen(
-            pupilId = emailId,
+        val pupilId = backStackEntry.arguments?.get("pupilId") as? Int
+        PupilScreen(
+            pupilId = pupilId,
             onNavigateToMain = onNavigateToMain,
             onNavigateUp = onNavigateUp
         )
     }
 }
 
-fun NavController.navigateToSinglePupil(emailId: Int) {
-    navigate(PupilDestination(emailId))
+fun NavController.navigateToSinglePupil(pupilId: Int?) {
+    navigate(PupilDestination(pupilId))
 }
 

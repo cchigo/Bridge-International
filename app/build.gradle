@@ -134,5 +134,7 @@ dependencies {
     testImplementation(libs.androidx.arch.core.testing)
     testImplementation(libs.robolectric)
     testImplementation(libs.mockwebserver)
+
+    implementation("io.coil-kt:coil-compose:2.5.0")
 }
 

@@ -38,7 +38,7 @@ import com.chichi.projectsetupapp.ui.theme.AppTheme
 @Composable
 fun PupilListScreen(
     onNavigateToMain: () -> Unit,
-    onNavigateToPupil: (pupilId: Int) -> Unit,
+    onNavigateToPupil: (pupilId: Int?) -> Unit,
     viewModel: GetPupilsViewmodel = hiltViewModel()
 ) {
     val pupilsState by viewModel.pupilsState.collectAsState()
@@ -47,8 +47,10 @@ fun PupilListScreen(
         viewModel.loadPupils()
     }
 
-    Scaffold(topBar = { }, floatingActionButton = {
-        ExtendedFloatingActionButton(onClick = onNavigateToMain,
+    Scaffold(topBar = {
+        PupilSearchBar()
+    }, floatingActionButton = {
+        ExtendedFloatingActionButton(onClick = {onNavigateToPupil(null)},
             text = { Text("Add new pupil") },
             icon = { Icon(imageVector = Icons.Default.Add, null) })
     }) { paddingValues ->
@@ -65,11 +67,9 @@ fun PupilListScreen(
                     items(pList) { pupil ->
 
                         ListItem(modifier = Modifier.clickable {
-                            pupil.id?.let {
-                                onNavigateToPupil(
-                                    it
-                                )
-                            }
+                            onNavigateToPupil(
+                                pupil.pupilId
+                            )
                         },
                             headlineContent = { Text(pupil.name ?: "Unnamed") })
                     }
@@ -96,6 +96,36 @@ fun PupilListScreen(
     }
 }
 
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun PupilSearchBar() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 24.dp)
+    ) {
+        SearchBar(modifier = Modifier
+            .fillMaxWidth()
+            .padding(12.dp),
+            expanded = false,
+            windowInsets = WindowInsets(0.dp),
+            inputField = {
+                SearchBarDefaults.InputField(query = "",
+                    onQueryChange = {},
+                    onSearch = {},
+                    leadingIcon = {
+                        Icon(imageVector = Icons.Default.Search, null)
+                    },
+                    placeholder = {
+                        Text(text = "Search Pupils")
+                    },
+                    expanded = false,
+                    onExpandedChange = {})
+            },
+            onExpandedChange = {},
+            content = {})
+    }
+}
 
 
 @Preview
