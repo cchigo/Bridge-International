@@ -22,11 +22,26 @@ class PupilsPagingRepository @Inject constructor(
 
 ) {
     @OptIn(ExperimentalPagingApi::class)
+//    fun getPagedPupils(): Flow<PagingData<PupilEntity>> {
+//        return Pager(
+//            config = PagingConfig(pageSize = 20),
+//            remoteMediator = PupilsRemoteMediator(db, api, entityMapper = entityMapper, dtoMapper = dtoMapper),
+//            pagingSourceFactory = { db.pupilDao().getPagedPupils() }
+//        ).flow
+//    }
+
+
     fun getPagedPupils(): Flow<PagingData<PupilEntity>> {
         return Pager(
             config = PagingConfig(pageSize = 20),
-            remoteMediator = PupilsRemoteMediator(db, api, entityMapper = entityMapper, dtoMapper = dtoMapper),
-            pagingSourceFactory = { db.pupilDao().getPagedPupils() }
+            remoteMediator = PupilsRemoteMediator(
+                db = db,
+                api = api,
+                entityMapper = entityMapper,
+                dtoMapper = dtoMapper
+            ),
+            pagingSourceFactory = { db.pupilDao().getPagedSyncedPupils() }
         ).flow
     }
+
 }

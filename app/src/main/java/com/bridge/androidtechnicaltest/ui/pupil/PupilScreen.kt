@@ -67,8 +67,10 @@ fun PupilScreen(
   localId: Int? = null,
   onNavigateToMain: () -> Unit,
   onNavigateUp: () -> Unit,
-  viewModel: PupilViewModel = hiltViewModel()
+  viewModel: PupilViewModel = hiltViewModel(),
 ) {
+
+  Log.d("PUPIL_ID_TAG", "PupilScreen: $localId")
   val pupilState by viewModel.pupilByIdState.collectAsState()
   val createState = viewModel.createState.collectAsState().value
   val updateState = viewModel.updateState.collectAsState().value
@@ -90,6 +92,8 @@ fun PupilScreen(
 
   LaunchedEffect(localId, pupilState) {
     //viewModel.getPupilsLocal(pupilState.pupilId ?: )
+    Log.d("PUPIL__TAG", "PupilScreen: $localId")
+
     localId?.let {
       viewModel.getPupilsLocal(it)
     }
@@ -268,6 +272,7 @@ fun PupilScreen(
           Button(
             enabled = isFormValid,
             onClick = {
+
               val pupil = Pupil(
                 name = name,
                 country = country,
@@ -275,7 +280,11 @@ fun PupilScreen(
                 longitude = longitude.toDouble(),
                 latitude = latitude.toDouble()
               )
-              viewModel.createPupil(pupil)
+              Log.d("CREATE_TAG", "PupilScreen: $pupil, localid is $localId")
+              viewModel.createPupil(
+                pupil=pupil,
+                localId = localId.takeIf { it != null }
+              )
             },
             modifier = Modifier.fillMaxWidth()
           ) {

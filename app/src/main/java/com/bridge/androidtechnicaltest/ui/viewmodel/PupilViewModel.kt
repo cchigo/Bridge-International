@@ -1,6 +1,6 @@
 package com.bridge.androidtechnicaltest.ui.viewmodel
 
-import android.util.Log
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bridge.androidtechnicaltest.common.BaseResponse
@@ -34,10 +34,10 @@ class PupilViewModel @Inject constructor(
 
     private var operationJob: Job? = null
 
-    fun createPupil(pupil: Pupil) {
+    fun createPupil(pupil: Pupil, localId: Int? = null) {
         operationJob?.cancel()
         operationJob = viewModelScope.launch {
-            pupilManagerUsecase.createPupil(pupil).collectLatest {
+            pupilManagerUsecase.createPupil(pupil, localId).collectLatest {
                 _createState.value = it
             }
         }
@@ -64,8 +64,6 @@ class PupilViewModel @Inject constructor(
     fun getPupilsLocal(pupilId: Int) {
         viewModelScope.launch {
             pupilManagerUsecase.getPupilByIdFromDB(pupilId).collectLatest {
-
-                Log.d("PUPIL__TAG", "PupilScreenVW: $it")
                 _pupilByIdState.value = it
             }
         }

@@ -9,13 +9,13 @@ import kotlinx.serialization.Serializable
 data object HomeDestination
 
 fun NavGraphBuilder.pupilListScreen(
-    onNavigateToSignUp: (pupilId: Int?) -> Unit,
+    onNavigateToPupil: (pupilId: Int?) -> Unit,
     onNavigateToMain: () -> Unit,
 ) {
     composable<HomeDestination> {
         PupilListScreen(
             onNavigateToMain = onNavigateToMain,
-            onNavigateToPupil = onNavigateToSignUp
+            onNavigateToPupil = onNavigateToPupil
         )
     }
 }

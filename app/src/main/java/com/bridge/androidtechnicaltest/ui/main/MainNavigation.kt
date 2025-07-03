@@ -15,7 +15,7 @@ fun NavGraphBuilder.mainScreen(
   composable<MainDestination> {
     MainScreen(
       onOpenEmailDetails = onOpenEmailDetails,
-      onComposeNewEmail = onComposeNewEmail
+      onNavigateToPupil = onComposeNewEmail
     )
   }
 }

@@ -35,7 +35,7 @@ class PupilsRemoteMediator(
                 remoteKeys?.currentPage?.plus(1) ?: return MediatorResult.Success(true)
             }
         }
-
+        Log.d("REMOTE_MEDIATOR", "loadType: $loadType, fetching page: $page")
         try {
             val response = api.getPupils(page = page)
             val pupils = response.items.orEmpty()

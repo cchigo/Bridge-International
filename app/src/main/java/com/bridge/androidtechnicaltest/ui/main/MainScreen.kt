@@ -2,7 +2,6 @@ package com.bridge.androidtechnicaltest.ui.main
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Icon
@@ -28,7 +27,7 @@ import com.bridge.androidtechnicaltest.ui.pupils.pupilListScreen
 @Composable
 fun MainScreen(
   onOpenEmailDetails: () -> Unit,
-  onComposeNewEmail: (emailId: Int?) -> Unit
+  onNavigateToPupil: (localId: Int?) -> Unit
 ) {
   val navController = rememberNavController()
   Scaffold(
@@ -50,10 +49,13 @@ fun MainScreen(
       // pupilslist
       pupilListScreen(
         onNavigateToMain = onOpenEmailDetails,
-        onNavigateToSignUp = onComposeNewEmail
+        onNavigateToPupil = onNavigateToPupil
       )
 
-      pendingPupilsScreen()
+      pendingPupilsScreen(
+        onNavigateToPupil = onNavigateToPupil
+
+      )
     }
   }
 }

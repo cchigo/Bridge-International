@@ -5,7 +5,6 @@ import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -16,25 +15,18 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SearchBar
-import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -55,8 +47,6 @@ import com.bridge.androidtechnicaltest.data.model.pupil.local.Pupil
 import com.bridge.androidtechnicaltest.data.model.pupil.local.PupilEntity
 import com.bridge.androidtechnicaltest.ui.viewmodel.GetPupilsViewmodel
 import com.chichi.projectsetupapp.ui.theme.AppTheme
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.debounce
 
 
 @Composable
@@ -143,7 +133,6 @@ fun ShowPupilsList(
                         tt,
                         Toast.LENGTH_SHORT
                     ).show()
-//
                 }
 
                 else -> Unit
@@ -225,16 +214,6 @@ fun LazyListScope.paginatedPupilsSection(
                 pupil = pupil,
                 onClick = onNavigateToPupil
             )
-
-//            ListItem(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(vertical = 20.dp, horizontal = 12.dp)
-//                    .clickable { onNavigateToPupil(pupil.pupilId) },
-//                headlineContent = {
-//                    Text(pupil.name ?: "Unnamed")
-//                }
-//            )
         }
     }
 
@@ -254,11 +233,7 @@ fun LazyListScope.paginatedPupilsSection(
         }
 
         is LoadState.Error -> {
-//            Toast.makeText(
-//                context,
-//                "Error loading more: ${appendState.error.localizedMessage}",
-//                Toast.LENGTH_SHORT
-//            ).show()
+
         }
 
 
@@ -269,7 +244,7 @@ fun LazyListScope.paginatedPupilsSection(
 @Composable
 fun PupilListItem(
     pupil: PupilEntity,
-    onClick: (Int?) -> Unit
+    onClick: (pupilId: Int) -> Unit
 ) {
     val isSynced = pupil.isSynced == true
 

@@ -4,14 +4,18 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import kotlinx.serialization.Serializable
-import nl.jovmit.navsetup.profile.PendingScreen
 
 @Serializable
 data object PendingPupilsDestination
 
-fun NavGraphBuilder.pendingPupilsScreen() {
+fun NavGraphBuilder.pendingPupilsScreen(
+  onNavigateToPupil: (pupilId: Int?) -> Unit,
+) {
+
   composable<PendingPupilsDestination> {
-    PendingScreen()
+    PendingScreen(
+      onNavigateToPupil = onNavigateToPupil
+    )
   }
 }
 

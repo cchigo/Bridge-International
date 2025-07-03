@@ -1,6 +1,6 @@
 package com.bridge.androidtechnicaltest.domain
 
-import android.util.Log
+
 import com.bridge.androidtechnicaltest.common.BaseResponse
 import com.bridge.androidtechnicaltest.common.ErrorApiResponse
 import com.bridge.androidtechnicaltest.common.NetworkChecker
@@ -9,7 +9,10 @@ import com.bridge.androidtechnicaltest.data.model.pupil.local.EntityModelMapper
 import com.bridge.androidtechnicaltest.data.model.pupil.local.Pupil
 import com.bridge.androidtechnicaltest.data.model.pupil.local.PupilEntity
 import com.bridge.androidtechnicaltest.data.model.pupil.remote.PupilDTOMapper
+import com.bridge.androidtechnicaltest.ui.puplis.PendingViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
@@ -21,12 +24,18 @@ class PupilManagerUsecase @Inject constructor(
     private val networkChecker: NetworkChecker
 ) {
 
-    private suspend fun insertInDb(pupilEntity: PupilEntity) {
+
+
+    private suspend fun insertInDb(pupilEntity: PupilEntity, localId: Int?) {
         try {
 
-            localDataSource.insertPupil(pupilEntity)
+            if(localId == null){
+                localDataSource.upsertPupil(pupilEntity)
+            }else{
+                localDataSource.insertPupil(pupilEntity)
+            }
+
         } catch (e: Exception) {
-            Log.e("", "DB insert failed: ${e.localizedMessage}")
         }
     }
 
@@ -40,10 +49,11 @@ class PupilManagerUsecase @Inject constructor(
 
                     emit(BaseResponse.Success(pupil.copy(isDeleted = true, isSynced = true)))
                 }
+
                 is BaseResponse.Error -> emit(BaseResponse.Error(result.error))
                 else -> Unit
             }
-        }else{
+        } else {
             val error = ErrorApiResponse(
                 title = "Unable to delete ${pupil.name}. Please retry when network is available."
             )
@@ -55,6 +65,7 @@ class PupilManagerUsecase @Inject constructor(
 
     fun updatePupil(pupil: Pupil): Flow<BaseResponse<Pupil>> = flow {
         emit(BaseResponse.Loading)
+
 
         if (!networkChecker.isConnected() || pupil.pupilId == null) {
             val error = ErrorApiResponse(
@@ -85,16 +96,20 @@ class PupilManagerUsecase @Inject constructor(
         }
     }
 
+    suspend fun mockInsert(pupil: PupilEntity){
+        localDataSource.insertPupil(pupil)
+    }
 
+    fun createPupil(pupil: Pupil, localId: Int ?= null): Flow<BaseResponse<Pupil>> = flow {
 
-
-    fun createPupil(pupil: Pupil): Flow<BaseResponse<Pupil>> = flow {
         emit(BaseResponse.Loading)
 
-        val entity = localMapper.to(pupil).copy(
-            isSynced = false,
-        )
-        insertInDb(entity)
+        val entity = localMapper.to(pupil).run {
+            if (localId != null) copy(id = localId, isSynced = false)
+            else copy(isSynced = false)
+        }
+
+        insertInDb(entity, localId)
 
         if (!networkChecker.isConnected()) {
             val error = ErrorApiResponse(
@@ -113,7 +128,7 @@ class PupilManagerUsecase @Inject constructor(
                 val syncedEntity = localMapper.to(remotePupil).copy(
                     isSynced = true
                 )
-                insertInDb(syncedEntity) // Update local record as synced
+                insertInDb(syncedEntity, localId) // Update local record as synced
                 emit(BaseResponse.Success(localMapper.from(syncedEntity)))
             }
 
@@ -140,19 +155,115 @@ class PupilManagerUsecase @Inject constructor(
             if (localPupil != null) {
                 val pupil = localMapper.from(localPupil)
 
-                Log.d("PUPIL__TAG", "getPupilByIdFromDB: $localPupil")
                 emit(pupil)
             }
-        }catch (e: Exception){
-
-            Log.d("PUPIL__TAG", "getPupilByIdFromDB erroe: $e")
+        } catch (e: Exception) {
         }
 
     }
 
-//    suspend fun getPupilByName(name: String): Pupil? {
-//        return localDataSource.getPupilByName(name)
-//    }
 
+
+
+
+
+
+    fun syncPupils(): Flow<PendingViewModel.SyncResult> = flow {
+        emit(PendingViewModel.SyncResult.Started)
+
+        if (!networkChecker.isConnected()) {
+            emit(
+                PendingViewModel.SyncResult.Failure(
+                    failedCount = -1 ,
+                    "You are currently offline. please try again"
+                )
+            )
+            return@flow
+        }
+
+        val failedPupils = mutableListOf<PupilEntity>()
+        var syncedCount = 0
+
+        val pupils = localDataSource.getUnsyncedPupils().first()
+
+        pupils.forEach { entity ->
+            delay(200L) // this is to Simulate  slight delay for realism
+
+            val pupil = localMapper.from(entity)
+            val remoteDto = dtoMapper.to(pupil)
+
+            try {
+                when (val result = repository.createPupil(remoteDto)) {
+                    is BaseResponse.Success -> {
+                        syncedCount++
+                        emit(
+                            PendingViewModel.SyncResult.Progress(
+                                current = syncedCount,
+                                total = pupils.size
+                            )
+                        )
+                        localDataSource.deletePupilById(entity.id)
+                    }
+
+                    is BaseResponse.Error -> {
+                        failedPupils.add(entity)
+                    }
+
+                    else -> Unit
+                }
+            } catch (e: Exception) {
+                failedPupils.add(entity)
+            }
+        }
+
+        if (failedPupils.isEmpty()) {
+            emit(PendingViewModel.SyncResult.Success)
+        } else {
+            emit(PendingViewModel.SyncResult.Failure(failedCount = failedPupils.size))
+        }
+    }
+
+
+    fun syncUnsyncedMockPupils(): Flow<PendingViewModel.SyncResult> = flow {
+        emit(PendingViewModel.SyncResult.Started)
+
+        val failedPupils = mutableListOf<PupilEntity>()
+        var syncedCount = 0
+
+        val list = localDataSource.getUnsyncedPupils().first() // 👈 one-time fetch
+
+        list.forEach { pupil ->
+            delay(400L)
+
+            val isSuccess = (0..99).random() < 30
+
+            if (isSuccess) {
+                syncedCount++
+                emit(PendingViewModel.SyncResult.Progress(current = syncedCount, total = list.size))
+                localDataSource.deletePupilById(pupil.id)
+            } else {
+                failedPupils.add(pupil)
+            }
+        }
+
+        if (failedPupils.isEmpty()) {
+            emit(PendingViewModel.SyncResult.Success)
+        } else {
+            emit(PendingViewModel.SyncResult.Failure(failedCount = failedPupils.size))
+        }
+    }
+
+
+
+
+    suspend fun delete(pupilEntity: PupilEntity){
+        try {
+
+
+            localDataSource.delete(pupilEntity)
+        }catch (e: Exception){
+
+        }
+    }
 
 }

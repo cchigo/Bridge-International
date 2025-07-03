@@ -1,5 +1,6 @@
 package com.bridge.androidtechnicaltest.domain
 
+import android.util.Log
 import com.bridge.androidtechnicaltest.common.BaseResponse
 import com.bridge.androidtechnicaltest.common.ErrorApiResponse
 import com.bridge.androidtechnicaltest.common.NetworkChecker
@@ -11,6 +12,7 @@ import com.bridge.androidtechnicaltest.data.model.pupil.local.PupilEntity
 import com.bridge.androidtechnicaltest.data.model.pupil.remote.PupilDTO
 import com.bridge.androidtechnicaltest.data.model.pupil.remote.PupilDTOMapper
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -31,7 +33,17 @@ class GetPupilsUseCase @Inject constructor(
     private val networkChecker: NetworkChecker
 ) {
 
+    fun getUnsyncedPupilsFromDB(): Flow<List<PupilEntity>> {
+        return localDataSource.getUnsyncedPupils()
+            .catch { e ->
 
+                emit(emptyList())
+
+            }
+    }
+
+
+//manual fetching from remote
     fun getPupils(page: Int = 1): Flow<BaseResponse<List<PupilEntity>>> = flow {
         emit(BaseResponse.Loading)
 
@@ -118,4 +130,6 @@ class GetPupilsUseCase @Inject constructor(
         }
     }
 
+
 }
+

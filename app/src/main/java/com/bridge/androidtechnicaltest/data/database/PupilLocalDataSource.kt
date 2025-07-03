@@ -20,12 +20,16 @@ interface PupilLocalDataSource {
 
     suspend fun deleteAllPupils()
 
-    suspend fun getUnsyncedPupils(): List<PupilEntity>
+     fun getUnsyncedPupils(): Flow<List<PupilEntity>>
 
     fun searchPupilsByName(query: String): Flow<List<PupilEntity>>
 
     fun filterPupilsByCountry(country: String): Flow<List<PupilEntity>>
 
     suspend fun searchById(id: Long): PupilEntity?
+
+    suspend fun delete(pupil: PupilEntity)
+
+    suspend fun upsertPupil(pupil: PupilEntity)
 
 }
