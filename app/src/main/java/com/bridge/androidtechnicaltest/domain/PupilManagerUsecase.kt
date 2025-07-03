@@ -24,55 +24,68 @@ class PupilManagerUsecase @Inject constructor(
 
     private suspend fun insertInDb(pupilEntity: PupilEntity) {
         try {
+
             localDataSource.insertPupil(pupilEntity)
         } catch (e: Exception) {
-            Log.e("PUPILS_FLOW_UC", "DB insert failed: ${e.localizedMessage}")
+            Log.e("", "DB insert failed: ${e.localizedMessage}")
         }
     }
 
 
+    fun deletePupil(pupil: Pupil): Flow<BaseResponse<Pupil>> = flow {
+        emit(BaseResponse.Loading)
+        if (networkChecker.isConnected()) {
+
+            when (val result = pupil.pupilId?.let { repository.deletePupil(it) }) {
+                is BaseResponse.Success -> {
+
+                    emit(BaseResponse.Success(pupil.copy(isDeleted = true, isSynced = true)))
+                }
+                is BaseResponse.Error -> emit(BaseResponse.Error(result.error))
+                else -> Unit
+            }
+        }else{
+            val error = ErrorApiResponse(
+                title = "Unable to delete ${pupil.name}. Please retry when network is available."
+            )
+            emit(BaseResponse.Error(error))
+
+        }
+
+    }
+
     fun updatePupil(pupil: Pupil): Flow<BaseResponse<Pupil>> = flow {
         emit(BaseResponse.Loading)
 
-        val localEntity = localMapper.to(pupil).copy(
-            isSynced = false,
-            timeStamp = generateTimestamp()
-        )
-
-        insertInDb(localEntity)
-
-        if (!networkChecker.isConnected() || localEntity.pupilId == null) {
-            emit(
-                BaseResponse.Error(
-                    ErrorApiResponse("Offline or unsynced pupil. Changes saved locally.")
-                )
+        if (!networkChecker.isConnected() || pupil.pupilId == null) {
+            val error = ErrorApiResponse(
+                title = "Unable to update pupil. Please retry when network is available."
             )
+            emit(BaseResponse.Error(error))
             return@flow
         }
 
-        // Safe to call update
-        val pupilToUpdate = localMapper.from(localEntity)
-        val pupilRemote = dtoMapper.to(pupilToUpdate)
-
-        when (val result = repository.updatePupil(localEntity.pupilId, pupilRemote)) {
+        val pupilRemote = dtoMapper.to(pupil)
+        when (val result = repository.updatePupil(pupil.pupilId, pupilRemote)) {
             is BaseResponse.Success -> {
                 val updatedPupil = dtoMapper.from(result.data)
-
-                val syncedEntity = localMapper.to(updatedPupil).copy(
-                    isSynced = true,
-                    timeStamp = generateTimestamp()
-                )
-                insertInDb(syncedEntity)
-                emit(BaseResponse.Success(localMapper.from(syncedEntity)))
+                emit(BaseResponse.Success(updatedPupil))
             }
 
             is BaseResponse.Error -> {
                 emit(BaseResponse.Error(result.error))
             }
 
-            else -> Unit
+
+            else -> {
+                val unknownError = ErrorApiResponse(
+                    title = "Unknown error occurred"
+                )
+                emit(BaseResponse.Error(unknownError))
+            }
         }
     }
+
 
 
 
@@ -83,64 +96,62 @@ class PupilManagerUsecase @Inject constructor(
             isSynced = false,
             timeStamp = generateTimestamp()
         )
-
         insertInDb(entity)
 
-        if (networkChecker.isConnected()) {
-            val remoteDto = dtoMapper.to(localMapper.from(entity))
+        if (!networkChecker.isConnected()) {
+            val error = ErrorApiResponse(
+                title = "We noticed you are offline. The pupil will be synced once you are back online."
+            )
+            emit(BaseResponse.Error(error))
 
-            when (val result = repository.createPupil(remoteDto)) {
-                is BaseResponse.Success -> {
-                    val remotePupil = dtoMapper.from(result.data)
-                    val syncedEntity = localMapper.to(remotePupil).copy(
-                        isSynced = true,
-                        timeStamp = generateTimestamp()
-                    )
-                    insertInDb(syncedEntity)
-                    emit(BaseResponse.Success(localMapper.from(syncedEntity)))
-                }
-
-                is BaseResponse.Error -> {
-
-                    emit(BaseResponse.Success(localMapper.from(entity)))
-                }
-
-                else -> {}
-            }
-        } else {
-            Log.d("PUPILS_FLOW_UC", "Offline: Pupil saved locally and marked as unsynced.")
-            emit(BaseResponse.Success(localMapper.from(entity)))
-        }
-    }
-
-    fun deletePupil(pupil: Pupil): Flow<BaseResponse<Pupil>> = flow {
-        emit(BaseResponse.Loading)
-
-        val deletedEntity = localMapper.to(pupil).copy(
-            isDeleted = true,
-            isSynced = false,
-            timeStamp = generateTimestamp()
-        )
-        insertInDb(deletedEntity)
-
-        // Deleted locally because we dont have id to delete pupil if it was created without syncing
-        if (pupil.pupilId == null || !networkChecker.isConnected()) {
-            emit(BaseResponse.Success(localMapper.from(deletedEntity)))
             return@flow
         }
 
+        val remoteDto = dtoMapper.to(localMapper.from(entity))
 
-        when (val result = repository.deletePupil(pupil.pupilId)) {
+        when (val result = repository.createPupil(remoteDto)) {
             is BaseResponse.Success -> {
-                localDataSource.deletePupilById(pupil.pupilId)
-                emit(BaseResponse.Success(pupil.copy(isDeleted = true, isSynced = true)))
+                val remotePupil = dtoMapper.from(result.data)
+                val syncedEntity = localMapper.to(remotePupil).copy(
+                    isSynced = true,
+                    timeStamp = generateTimestamp()
+                )
+                insertInDb(syncedEntity) // Update local record as synced
+                emit(BaseResponse.Success(localMapper.from(syncedEntity)))
             }
-            is BaseResponse.Error -> emit(BaseResponse.Error(result.error))
-            else -> Unit
+
+            is BaseResponse.Error -> {
+                emit(
+                    BaseResponse.Error(
+                        ErrorApiResponse("Network error. Pupil saved locally and will sync later.")
+                    )
+                )
+            }
+
+            else -> {
+                emit(BaseResponse.Error(ErrorApiResponse("Unknown error occurred.")))
+            }
+        }
+    }
+
+    fun getPupilByIdFromDB(pupilId: Int): Flow<Pupil> = flow {
+        try {
+
+            val localPupil = localDataSource.getPupilById(pupilId)
+
+            if (localPupil != null) {
+                val pupil = localMapper.from(localPupil)
+                emit(pupil)
+            }
+        }catch (e: Exception){
+
         }
 
-
     }
+
+//    suspend fun getPupilByName(name: String): Pupil? {
+//        return localDataSource.getPupilByName(name)
+//    }
 
 
 }

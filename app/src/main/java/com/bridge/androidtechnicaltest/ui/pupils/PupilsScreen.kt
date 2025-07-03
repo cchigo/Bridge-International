@@ -241,14 +241,13 @@ fun LazyListScope.paginatedPupilsSection(
         }
 
         is LoadState.Error -> {
-
-
-            Toast.makeText(
-                context,
-                "Error loading more: ${appendState.error.localizedMessage}",
-                Toast.LENGTH_SHORT
-            ).show()
+//            Toast.makeText(
+//                context,
+//                "Error loading more: ${appendState.error.localizedMessage}",
+//                Toast.LENGTH_SHORT
+//            ).show()
         }
+
 
         else -> Unit
     }

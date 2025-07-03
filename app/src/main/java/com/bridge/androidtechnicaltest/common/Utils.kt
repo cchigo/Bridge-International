@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.UUID
 
 object Utils {
 
@@ -57,4 +58,21 @@ object Utils {
             }
         }
     }
+
+    // this simulates image url
+    fun generateRandomImageUrl(pupilName: String): String {
+        val baseUrl = "https://www.photos/pupils/"
+        val seed = pupilName.ifBlank { UUID.randomUUID().toString().take(8) }
+        return "$baseUrl-$pupilName"
+    }
+
+    // this simulates random lat and long
+    fun generateRandomLocation(): Pair<String, String> {
+        val lat = (10..99).random() + (0..9999).random() / 10000.0
+        val lon = (10..99).random() + (0..9999).random() / 10000.0
+        return String.format("%.4f", lat) to String.format("%.4f", lon)
+    }
+
+
+
 }

@@ -54,8 +54,13 @@ class PupilsRemoteMediator(
                 }
 
                 db.remoteKeysDao().insertAll(remoteKeys)
-                val mappedPupils = entityMapper.toList(dtoMapper.fromList(pupils))
+
+                val mappedPupils = entityMapper
+                    .toList(dtoMapper.fromList(pupils))
+                    .map { it.copy(isSynced = true) }
+
                 db.pupilDao().insertPupils(mappedPupils)
+
             }
 
             return MediatorResult.Success(endOfPaginationReached = endReached)

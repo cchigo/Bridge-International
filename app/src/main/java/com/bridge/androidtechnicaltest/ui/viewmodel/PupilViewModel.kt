@@ -1,21 +1,19 @@
 package com.bridge.androidtechnicaltest.ui.viewmodel
 
-import android.view.View
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bridge.androidtechnicaltest.common.BaseResponse
 import com.bridge.androidtechnicaltest.data.model.pupil.local.Pupil
 import com.bridge.androidtechnicaltest.domain.PupilManagerUsecase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
 
 @HiltViewModel
 class PupilViewModel @Inject constructor(
@@ -31,30 +29,54 @@ class PupilViewModel @Inject constructor(
     private val _deleteState = MutableStateFlow<BaseResponse<Pupil>>(BaseResponse.Empty)
     val deleteState: StateFlow<BaseResponse<Pupil>> = _deleteState.asStateFlow()
 
-    fun updatePupil(pupil: Pupil) {
-        viewModelScope.launch {
-            pupilManagerUsecase.updatePupil(pupil).collect {
-                _updateState.value = it
-            }
-        }
-    }
+    private val _pupilByIdState = MutableStateFlow<Pupil?>(null)
+    val pupilByIdState: StateFlow<Pupil?> = _pupilByIdState
 
+    private var operationJob: Job? = null
 
     fun createPupil(pupil: Pupil) {
-        viewModelScope.launch {
+        operationJob?.cancel()
+        operationJob = viewModelScope.launch {
             pupilManagerUsecase.createPupil(pupil).collectLatest {
                 _createState.value = it
             }
         }
     }
 
-    fun deletePupil(pupilId: Pupil) {
-        viewModelScope.launch {
-            pupilManagerUsecase.deletePupil(pupilId).collectLatest {
+    fun updatePupil(pupil: Pupil) {
+        operationJob?.cancel()
+        operationJob = viewModelScope.launch {
+            pupilManagerUsecase.updatePupil(pupil).collectLatest {
+                _updateState.value = it
+            }
+        }
+    }
+
+    fun deletePupil(pupil: Pupil) {
+        operationJob?.cancel()
+        operationJob = viewModelScope.launch {
+            pupilManagerUsecase.deletePupil(pupil).collectLatest {
                 _deleteState.value = it
             }
         }
     }
 
+    fun getPupilsLocal(pupilId: Int) {
+        viewModelScope.launch {
+            pupilManagerUsecase.getPupilByIdFromDB(pupilId).collectLatest {
+                _pupilByIdState.value = it
+            }
+        }
+    }
 
+    fun resetAllStates() {
+        _createState.value = BaseResponse.Empty
+        _updateState.value = BaseResponse.Empty
+        _deleteState.value = BaseResponse.Empty
+    }
+
+    fun cancelOngoingOperation() {
+        operationJob?.cancel()
+    }
 }
+
