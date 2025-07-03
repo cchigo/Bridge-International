@@ -12,7 +12,6 @@ class EntityModelMapper: BaseModelMapper<Pupil, PupilEntity> {
             latitude = data.latitude,
             longitude = data.longitude,
             isSynced = true,
-            timeStamp = data.timeStamp,
             pupilId = data.pupilId
         )
     }
@@ -25,7 +24,6 @@ class EntityModelMapper: BaseModelMapper<Pupil, PupilEntity> {
             image = data.image ?: "",
             latitude = data.latitude ?: 0.00,
             longitude = data.longitude ?: 0.00,
-            timeStamp = generateTimestamp()
         )
     }
 

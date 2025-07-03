@@ -2,16 +2,20 @@ package com.bridge.androidtechnicaltest.ui.pupils
 
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,7 +37,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,6 +49,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import coil.compose.AsyncImage
 import com.bridge.androidtechnicaltest.common.BaseResponse
 import com.bridge.androidtechnicaltest.data.model.pupil.local.Pupil
 import com.bridge.androidtechnicaltest.data.model.pupil.local.PupilEntity
@@ -213,15 +221,20 @@ fun LazyListScope.paginatedPupilsSection(
     items(lazyPagingItems.itemCount) { index ->
         val pupil = lazyPagingItems[index]
         if (pupil != null) {
-            ListItem(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 20.dp, horizontal = 12.dp)
-                    .clickable { onNavigateToPupil(pupil.pupilId) },
-                headlineContent = {
-                    Text(pupil.name ?: "Unnamed")
-                }
+            PupilListItem(
+                pupil = pupil,
+                onClick = onNavigateToPupil
             )
+
+//            ListItem(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(vertical = 20.dp, horizontal = 12.dp)
+//                    .clickable { onNavigateToPupil(pupil.pupilId) },
+//                headlineContent = {
+//                    Text(pupil.name ?: "Unnamed")
+//                }
+//            )
         }
     }
 
@@ -251,6 +264,45 @@ fun LazyListScope.paginatedPupilsSection(
 
         else -> Unit
     }
+}
+
+@Composable
+fun PupilListItem(
+    pupil: PupilEntity,
+    onClick: (Int?) -> Unit
+) {
+    val isSynced = pupil.isSynced == true
+
+    ListItem(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp, horizontal = 16.dp)
+            .clickable { onClick(pupil.id) }
+            .alpha(if (isSynced) 1f else 0.5f),
+        leadingContent = {
+            AsyncImage(
+                model = pupil.image,
+                contentDescription = "Pupil Image",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .border(1.dp, Color.Gray, CircleShape)
+            )
+        },
+        headlineContent = {
+            Text(text = pupil.name ?: "Unnamed")
+        },
+        trailingContent = {
+            if (!isSynced) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = "Pending Sync",
+                    tint = Color.Red
+                )
+            }
+        }
+    )
 }
 
 

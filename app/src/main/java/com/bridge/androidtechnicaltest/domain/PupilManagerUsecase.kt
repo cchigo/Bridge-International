@@ -4,7 +4,6 @@ import android.util.Log
 import com.bridge.androidtechnicaltest.common.BaseResponse
 import com.bridge.androidtechnicaltest.common.ErrorApiResponse
 import com.bridge.androidtechnicaltest.common.NetworkChecker
-import com.bridge.androidtechnicaltest.common.Utils.generateTimestamp
 import com.bridge.androidtechnicaltest.data.database.PupilLocalDataSource
 import com.bridge.androidtechnicaltest.data.model.pupil.local.EntityModelMapper
 import com.bridge.androidtechnicaltest.data.model.pupil.local.Pupil
@@ -94,7 +93,6 @@ class PupilManagerUsecase @Inject constructor(
 
         val entity = localMapper.to(pupil).copy(
             isSynced = false,
-            timeStamp = generateTimestamp()
         )
         insertInDb(entity)
 
@@ -113,8 +111,7 @@ class PupilManagerUsecase @Inject constructor(
             is BaseResponse.Success -> {
                 val remotePupil = dtoMapper.from(result.data)
                 val syncedEntity = localMapper.to(remotePupil).copy(
-                    isSynced = true,
-                    timeStamp = generateTimestamp()
+                    isSynced = true
                 )
                 insertInDb(syncedEntity) // Update local record as synced
                 emit(BaseResponse.Success(localMapper.from(syncedEntity)))
@@ -139,12 +136,16 @@ class PupilManagerUsecase @Inject constructor(
 
             val localPupil = localDataSource.getPupilById(pupilId)
 
+
             if (localPupil != null) {
                 val pupil = localMapper.from(localPupil)
+
+                Log.d("PUPIL__TAG", "getPupilByIdFromDB: $localPupil")
                 emit(pupil)
             }
         }catch (e: Exception){
 
+            Log.d("PUPIL__TAG", "getPupilByIdFromDB erroe: $e")
         }
 
     }

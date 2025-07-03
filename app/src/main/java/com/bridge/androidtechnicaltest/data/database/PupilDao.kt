@@ -18,10 +18,14 @@ interface PupilDao : PupilLocalDataSource {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     override suspend fun insertPupils(pupils: List<PupilEntity>)
 
-    @Query("SELECT * FROM pupils_table")
+//    @Query("SELECT * FROM pupils_table")
+//    override fun getAllPupils(): Flow<List<PupilEntity>>
+
+    @Query("SELECT * FROM pupils_table ORDER BY id DESC")
     override fun getAllPupils(): Flow<List<PupilEntity>>
 
-    @Query("SELECT * FROM pupils_table WHERE pupilId = :pupilId")
+
+    @Query("SELECT * FROM pupils_table WHERE id = :pupilId")
     override suspend fun getPupilById(pupilId: Int): PupilEntity?
 
     @Update
@@ -31,7 +35,7 @@ interface PupilDao : PupilLocalDataSource {
     @Query("SELECT * FROM pupils_table WHERE is_synced = 0  OR is_synced IS NULL")
     override suspend fun getUnsyncedPupils(): List<PupilEntity>
 
-    @Query("SELECT * FROM pupils_table ORDER BY name ASC")
+    @Query("SELECT * FROM pupils_table ORDER BY id DESC")
     fun getPagedPupils(): PagingSource<Int, PupilEntity>
 
 

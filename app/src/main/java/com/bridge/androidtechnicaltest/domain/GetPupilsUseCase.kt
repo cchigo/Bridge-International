@@ -97,7 +97,6 @@ class GetPupilsUseCase @Inject constructor(
                         latitude = remotePupil.latitude,
                         longitude = remotePupil.longitude,
                         isSynced = true,
-                        timeStamp = generateTimestamp(),
                     )
                     localDataSource.insertPupil(local)
                 }

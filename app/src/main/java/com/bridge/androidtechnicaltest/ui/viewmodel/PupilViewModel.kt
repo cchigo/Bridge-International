@@ -64,6 +64,8 @@ class PupilViewModel @Inject constructor(
     fun getPupilsLocal(pupilId: Int) {
         viewModelScope.launch {
             pupilManagerUsecase.getPupilByIdFromDB(pupilId).collectLatest {
+
+                Log.d("PUPIL__TAG", "PupilScreenVW: $it")
                 _pupilByIdState.value = it
             }
         }

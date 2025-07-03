@@ -39,7 +39,8 @@ data class PupilEntity(
     val isSynced: Boolean? = false,
 
     @ColumnInfo(name = "time_stamp")
-    val timeStamp: String? = null,
+    val timeStamp: Long = System.currentTimeMillis(),
+
 
     @ColumnInfo(name = "is_deleted")
     val isDeleted: Boolean? = false,

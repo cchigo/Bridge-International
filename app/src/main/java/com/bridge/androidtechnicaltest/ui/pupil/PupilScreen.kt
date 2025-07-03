@@ -34,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -63,7 +64,7 @@ import com.chichi.projectsetupapp.ui.theme.AppTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PupilScreen(
-  pupilId: Int? = null,
+  localId: Int? = null,
   onNavigateToMain: () -> Unit,
   onNavigateUp: () -> Unit,
   viewModel: PupilViewModel = hiltViewModel()
@@ -81,34 +82,26 @@ fun PupilScreen(
   var country by remember { mutableStateOf("") }
   var longitude by remember { mutableStateOf("") }
   var latitude by remember { mutableStateOf("") }
+  var pupilId by remember { mutableIntStateOf(-1) }
   var requestLocation by remember { mutableStateOf(false) }
 
   val isFormValid =
     name.isNotBlank() && country.isNotBlank() && longitude.isNotBlank() && latitude.isNotBlank()
 
-  Log.d("PUPIL_TAG", "PupilScreen: $pupilId")
-  val context = LocalContext.current
-
-//  RequestLocationAccess(
-//    trigger = requestLocation,
-//    onConsumed = { requestLocation = false },
-//    onLocationRetrieved = { lat, lon ->
-//      latitude = lat
-//      longitude = lon
-//    }
-//  )
-
-  LaunchedEffect(pupilId, pupilState) {
-    pupilId?.let {
+  LaunchedEffect(localId, pupilState) {
+    //viewModel.getPupilsLocal(pupilState.pupilId ?: )
+    localId?.let {
       viewModel.getPupilsLocal(it)
     }
 
     pupilState?.let { pupil ->
+      Log.d("PUPIL__TAG", "PupilScreen: $pupil")
       name = pupil.name ?: ""
       imageUrl = pupil.image ?: ""
       latitude = pupil.latitude.toString()
       longitude = pupil.longitude.toString()
       country = pupil.country ?: ""
+      pupilId = pupil.pupilId ?: -1
     }
   }
 
@@ -142,12 +135,15 @@ fun PupilScreen(
 
 
   Box(modifier = Modifier.fillMaxSize()) {
+
+    val screenTitle = if (pupilId == -1) "Create Pupil" else "Edit Pupil"
+
     Scaffold(
       topBar = {
         TopAppBar(
           title = {
             Text(
-              text = if (pupilId != null && pupilId != -1) "Edit Pupil" else "Create Pupil"
+              text = screenTitle
             )
           },
           navigationIcon = {
@@ -243,7 +239,7 @@ fun PupilScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (pupilId != null) {
+        if (pupilId != -1) {
           Button(
             onClick = { pupilState?.let { viewModel.updatePupil(it) } },
             enabled = isFormValid,
@@ -464,7 +460,7 @@ fun ObserveDeleteState(
 private fun PreviewSignUpScreen() {
   AppTheme {
     PupilScreen(
-        pupilId = 5,
+        localId = 5,
         onNavigateToMain = {},
         onNavigateUp = {}
     )
