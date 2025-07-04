@@ -48,6 +48,7 @@ class PupilManagerUsecase @Inject constructor(
                 is BaseResponse.Success -> {
 
                     emit(BaseResponse.Success(pupil.copy(isDeleted = true, isSynced = true)))
+
                 }
 
                 is BaseResponse.Error -> emit(BaseResponse.Error(result.error))
@@ -258,7 +259,6 @@ class PupilManagerUsecase @Inject constructor(
 
     suspend fun delete(pupilEntity: PupilEntity){
         try {
-
 
             localDataSource.delete(pupilEntity)
         }catch (e: Exception){

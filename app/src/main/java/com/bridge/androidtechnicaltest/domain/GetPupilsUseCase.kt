@@ -85,51 +85,58 @@ class GetPupilsUseCase @Inject constructor(
     }
 
 
-    fun getPupilById(pupilId: Int): Flow<BaseResponse<Pupil>> = flow {
+    fun getPupilById(pupilId: Int): Flow<BaseResponse<PupilEntity>> = flow {
         emit(BaseResponse.Loading)
 
         val localPupil = localDataSource.getPupilById(pupilId)
-        var emittedLocal = false
-
         if (localPupil != null) {
-            val pupil = localMapper.from(localPupil)
-            emit(BaseResponse.Success(pupil))
-            emittedLocal = true
+
+            emit(BaseResponse.Success(localPupil))
+            return@flow
         }
 
         if (networkChecker.isConnected()) {
             when (val result = repository.getPupilById(pupilId)) {
                 is BaseResponse.Success -> {
-                    val remotePupil = result.data
-                    val local = PupilEntity(
-                        pupilId = remotePupil.pupilId,
-                        name = remotePupil.name,
-                        country = remotePupil.country,
-                        image = remotePupil.image,
-                        latitude = remotePupil.latitude,
-                        longitude = remotePupil.longitude,
-                        isSynced = true,
-                    )
-                    localDataSource.insertPupil(local)
+
+                    emit(BaseResponse.Success(  PupilEntity(
+                        name = result.data.name ?: "" ,
+                        pupilId = result.data.pupilId,
+                        country = result.data.country ?: "",
+                        image = result.data.image ?: "",
+                        latitude = result.data.latitude ?: 0.00,
+                        longitude = result.data.longitude ?: 0.00,
+                    )))
                 }
 
                 is BaseResponse.Error -> {
-                    if (!emittedLocal) {
-                        emit(BaseResponse.Error(result.error))
-                    }
+                    emit(BaseResponse.Error(ErrorApiResponse(title = result.error.title)))
                 }
 
                 else -> {
-                    if (!emittedLocal) {
-                        emit(BaseResponse.Error(ErrorApiResponse("Pupil not found, please try again")))
-                    }
+                    emit(BaseResponse.Error(ErrorApiResponse(title = "Pupil not found. Please try again.")))
                 }
             }
-        } else if (localPupil == null) {
-            emit(BaseResponse.Error(ErrorApiResponse("No internet and no local data")))
+        } else {
+            emit(BaseResponse.Error(ErrorApiResponse(title ="Unable to load pupil details. Please check your internet connection and try again.")))
         }
     }
 
+
+
+
+    private suspend fun insertInDb(pupilEntity: PupilEntity, localId: Int?) {
+        try {
+
+            if(localId == null){
+                localDataSource.upsertPupil(pupilEntity)
+            }else{
+                localDataSource.insertPupil(pupilEntity)
+            }
+
+        } catch (e: Exception) {
+        }
+    }
 
 }
 

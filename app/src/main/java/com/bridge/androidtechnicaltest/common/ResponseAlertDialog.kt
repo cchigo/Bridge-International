@@ -6,6 +6,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
@@ -15,8 +16,8 @@ fun ResponseAlertDialog(
     message: String,
     confirmButtonText: String,
     onConfirm: () -> Unit,
-    onDismiss: () -> Unit,
-    confirmButtonColor: Color = MaterialTheme.colorScheme.primary // default
+    onDismiss:  (() -> Unit)?,
+    confirmButtonColor: Color = MaterialTheme.colorScheme.primary
 ) {
     AlertDialog(
         onDismissRequest = { },
@@ -32,6 +33,15 @@ fun ResponseAlertDialog(
                 Text(confirmButtonText, color = Color.White)
             }
         },
-        dismissButton = null
+        dismissButton = {
+            if (onDismiss != null) {
+                TextButton(onClick = onDismiss) {
+                    Text("Cancel")
+                }
+            }
+        }
+
+        ,
+
     )
 }

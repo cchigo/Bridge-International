@@ -1,6 +1,7 @@
 package com.bridge.androidtechnicaltest.ui.pupils
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -102,7 +103,7 @@ fun PupilListScreen(
 fun ShowPupilsList(
     lazyPagingItems: LazyPagingItems<PupilEntity>,
     onNavigateToPupil: (Int?) -> Unit,
-    pupilByIdState: BaseResponse<Pupil>? = null
+    pupilByIdState: BaseResponse<PupilEntity>? = null
 ) {
     val context = LocalContext.current
     Box(modifier = Modifier.fillMaxSize()) {
@@ -143,7 +144,7 @@ fun ShowPupilsList(
 
 
 fun LazyListScope.searchResultSection(
-    pupilByIdState: BaseResponse<Pupil>,
+    pupilByIdState: BaseResponse<PupilEntity>,
     onNavigateToPupil: (Int?) -> Unit
 ) {
     when (pupilByIdState) {
@@ -167,7 +168,7 @@ fun LazyListScope.searchResultSection(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 20.dp, horizontal = 12.dp)
-                        .clickable { onNavigateToPupil(pupil.pupilId) },
+                        .clickable { onNavigateToPupil(pupil.id) },
                     headlineContent = {
                         Text(pupil.name ?: "Unnamed")
                     }
@@ -176,9 +177,10 @@ fun LazyListScope.searchResultSection(
         }
 
         is BaseResponse.Error -> {
+            Log.d("ERROR_TAG", "searchResultSection: ${pupilByIdState.error.title}")
             item {
                 Text(
-                    text = pupilByIdState.error.title ?: "An error occurred",
+                    text = pupilByIdState.error.title ?: "pupil does not exist",
                     color = Color.Red,
                     modifier = Modifier
                         .fillMaxWidth()

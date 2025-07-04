@@ -27,8 +27,8 @@ class GetPupilsViewmodel @Inject constructor(
     val pagedPupils: Flow<PagingData<PupilEntity>> =
         pagingRepository.getPagedPupils().cachedIn(viewModelScope)
 
-    private val _pupilByIdState = MutableStateFlow<BaseResponse<Pupil>?>(null)
-    val pupilByIdState: StateFlow<BaseResponse<Pupil>?> = _pupilByIdState
+    private val _pupilByIdState = MutableStateFlow<BaseResponse<PupilEntity>?>(null)
+    val pupilByIdState: StateFlow<BaseResponse<PupilEntity>?> = _pupilByIdState
 
 
     fun loadPupilById(pupilId: Int) {
