@@ -110,9 +110,10 @@ class PupilManagerUsecase @Inject constructor(
             else copy(isSynced = false)
         }
 
-        insertInDb(entity, localId)
+
 
         if (!networkChecker.isConnected()) {
+            insertInDb(entity, localId)
             val error = ErrorApiResponse(
                 title = "We noticed you are offline. The pupil will be synced once you are back online."
             )
@@ -129,11 +130,12 @@ class PupilManagerUsecase @Inject constructor(
                 val syncedEntity = localMapper.to(remotePupil).copy(
                     isSynced = true
                 )
-                insertInDb(syncedEntity, localId) // Update local record as synced
+               // insertInDb(syncedEntity, localId) // Update local record as synced
                 emit(BaseResponse.Success(localMapper.from(syncedEntity)))
             }
 
             is BaseResponse.Error -> {
+                insertInDb(entity, localId)
                 emit(
                     BaseResponse.Error(
                         ErrorApiResponse("Network error. Pupil saved locally and will sync later.")
@@ -142,6 +144,7 @@ class PupilManagerUsecase @Inject constructor(
             }
 
             else -> {
+                insertInDb(entity, localId)
                 emit(BaseResponse.Error(ErrorApiResponse("Unknown error occurred.")))
             }
         }

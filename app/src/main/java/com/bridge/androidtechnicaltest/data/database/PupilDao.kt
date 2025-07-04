@@ -20,7 +20,7 @@ interface PupilDao : PupilLocalDataSource {
     @Upsert
     override suspend fun upsertPupil(pupil: PupilEntity)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     override suspend fun insertPupils(pupils: List<PupilEntity>)
 
 //    @Query("SELECT * FROM pupils_table")
@@ -43,7 +43,7 @@ interface PupilDao : PupilLocalDataSource {
 
 
 
-    @Query("SELECT * FROM pupils_table WHERE is_synced = 1 ORDER BY time_stamp DESC")
+    @Query("SELECT * FROM pupils_table WHERE is_synced = 1 ORDER BY pupilId DESC")
     fun getPagedSyncedPupils(): PagingSource<Int, PupilEntity>
 
 

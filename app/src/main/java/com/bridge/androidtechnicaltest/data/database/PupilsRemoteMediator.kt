@@ -42,11 +42,12 @@ class PupilsRemoteMediator(
             val currentPage = response.pageNumber ?: page
             val totalPages = response.totalPages ?: currentPage
             val endReached = currentPage >= totalPages
+            Log.d("REMOTE_MEDIATOR_AFTER", "loadType: current$currentPage, fetching page: $page total$totalPages endReached $endReached loadType: $loadType")
 
             db.withTransaction {
                 if (loadType == LoadType.REFRESH) {
                     db.remoteKeysDao().clearRemoteKeys()
-                   // db.pupilDao().deleteAllPupils()
+                    db.pupilDao().deleteAllPupils()
                 }
 
                 val remoteKeys = pupils.map {

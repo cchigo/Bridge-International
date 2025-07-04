@@ -29,11 +29,19 @@ class PupilsPagingRepository @Inject constructor(
 //            pagingSourceFactory = { db.pupilDao().getPagedPupils() }
 //        ).flow
 //    }
-
+//    PagingConfig(
+//    pageSize = 5,
+//    initialLoadSize = 5,
+//    enablePlaceholders = false
+//    )
 
     fun getPagedPupils(): Flow<PagingData<PupilEntity>> {
         return Pager(
-            config = PagingConfig(pageSize = 20),
+            config =PagingConfig(
+                pageSize = 5,
+                initialLoadSize = 5,
+                enablePlaceholders = false
+            ),
             remoteMediator = PupilsRemoteMediator(
                 db = db,
                 api = api,
