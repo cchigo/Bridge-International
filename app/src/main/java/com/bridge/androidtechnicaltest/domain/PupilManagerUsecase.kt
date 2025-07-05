@@ -5,11 +5,11 @@ import com.bridge.androidtechnicaltest.common.BaseResponse
 import com.bridge.androidtechnicaltest.common.ErrorApiResponse
 import com.bridge.androidtechnicaltest.common.NetworkChecker
 import com.bridge.androidtechnicaltest.data.database.PupilLocalDataSource
-import com.bridge.androidtechnicaltest.data.model.pupil.local.EntityModelMapper
-import com.bridge.androidtechnicaltest.data.model.pupil.local.Pupil
-import com.bridge.androidtechnicaltest.data.model.pupil.local.PupilEntity
-import com.bridge.androidtechnicaltest.data.model.pupil.remote.PupilDTOMapper
-import com.bridge.androidtechnicaltest.ui.puplis.PendingViewModel
+import com.bridge.androidtechnicaltest.data.models.local.EntityModelMapper
+import com.bridge.androidtechnicaltest.data.models.local.Pupil
+import com.bridge.androidtechnicaltest.data.models.local.PupilEntity
+import com.bridge.androidtechnicaltest.data.models.remote.PupilDTOMapper
+import com.bridge.androidtechnicaltest.ui.pendingpupils.PendingViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -40,13 +40,17 @@ class PupilManagerUsecase @Inject constructor(
     }
 
 
-    fun deletePupil(pupil: Pupil): Flow<BaseResponse<Pupil>> = flow {
+    fun deletePupil(pupil: Pupil, localId: Int?): Flow<BaseResponse<Pupil>> = flow {
         emit(BaseResponse.Loading)
+
         if (networkChecker.isConnected()) {
 
             when (val result = pupil.pupilId?.let { repository.deletePupil(it) }) {
                 is BaseResponse.Success -> {
 
+                    if (localId != null) {
+                        localDataSource.deletePupilById(localId)
+                    }
                     emit(BaseResponse.Success(pupil.copy(isDeleted = true, isSynced = true)))
 
                 }
@@ -111,7 +115,6 @@ class PupilManagerUsecase @Inject constructor(
         }
 
 
-
         if (!networkChecker.isConnected()) {
             insertInDb(entity, localId)
             val error = ErrorApiResponse(
@@ -130,7 +133,6 @@ class PupilManagerUsecase @Inject constructor(
                 val syncedEntity = localMapper.to(remotePupil).copy(
                     isSynced = true
                 )
-               // insertInDb(syncedEntity, localId) // Update local record as synced
                 emit(BaseResponse.Success(localMapper.from(syncedEntity)))
             }
 
@@ -165,10 +167,6 @@ class PupilManagerUsecase @Inject constructor(
         }
 
     }
-
-
-
-
 
 
 
@@ -260,10 +258,10 @@ class PupilManagerUsecase @Inject constructor(
 
 
 
-    suspend fun delete(pupilEntity: PupilEntity){
+    suspend fun delete(localId: Int){
         try {
 
-            localDataSource.delete(pupilEntity)
+            localDataSource.deletePupilById(localId)
         }catch (e: Exception){
 
         }

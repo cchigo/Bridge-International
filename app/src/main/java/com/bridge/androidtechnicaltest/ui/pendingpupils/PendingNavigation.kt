@@ -1,4 +1,4 @@
-package com.bridge.androidtechnicaltest.ui.puplis
+package com.bridge.androidtechnicaltest.ui.pendingpupils
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder

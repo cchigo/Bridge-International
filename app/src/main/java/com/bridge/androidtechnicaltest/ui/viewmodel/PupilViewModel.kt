@@ -4,7 +4,7 @@ package com.bridge.androidtechnicaltest.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bridge.androidtechnicaltest.common.BaseResponse
-import com.bridge.androidtechnicaltest.data.model.pupil.local.Pupil
+import com.bridge.androidtechnicaltest.data.models.local.Pupil
 import com.bridge.androidtechnicaltest.domain.PupilManagerUsecase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -52,10 +52,11 @@ class PupilViewModel @Inject constructor(
         }
     }
 
-    fun deletePupil(pupil: Pupil) {
+    fun deletePupil(pupil: Pupil, localId: Int?) {
         operationJob?.cancel()
+
         operationJob = viewModelScope.launch {
-            pupilManagerUsecase.deletePupil(pupil).collectLatest {
+            pupilManagerUsecase.deletePupil(pupil, localId).collectLatest {
                 _deleteState.value = it
             }
         }

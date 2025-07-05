@@ -1,4 +1,4 @@
-package com.bridge.androidtechnicaltest.ui.puplis
+package com.bridge.androidtechnicaltest.ui.pendingpupils
 
 
 import androidx.compose.foundation.background
@@ -24,7 +24,6 @@ import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -49,11 +48,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bridge.androidtechnicaltest.common.ResponseAlertDialog
-import com.bridge.androidtechnicaltest.data.model.pupil.local.PupilEntity
+import com.bridge.androidtechnicaltest.data.models.local.PupilEntity
 
 @Composable
 fun PendingScreen(
-    onNavigateToPupil: (pupilId: Int) -> Unit, viewModel: PendingViewModel = hiltViewModel()
+    onNavigateToPupil: (pupilId: Int) -> Unit,
+   viewModel: PendingViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
     val syncState by viewModel.syncState.collectAsState()
@@ -124,7 +124,7 @@ fun PendingScreen(
             }
             if (state.pupilsLocal.isEmpty()) {
                 Box(modifier = Modifier.align(Alignment.Center)) {
-                    Text("There are no pupils to create")
+                    Text("No new pupils to register. All set!")
                 }
             }
         }
@@ -252,8 +252,6 @@ fun PupilItem(
         }
 
         if (showDialog) {
-
-
             ResponseAlertDialog(title = "Warning",
                 message = "Are you sure you want to delete ${pupil.name}",
                 confirmButtonText = "Yes",
@@ -264,7 +262,7 @@ fun PupilItem(
                 onConfirm = {
                     showDialog = false
 
-                    onEvent(PupilEvents.DeletePupils(state.pupilsLocal[index]))
+                    onEvent(PupilEvents.DeletePupils(state.pupilsLocal[index].id))
 
                 })
         }
@@ -289,7 +287,7 @@ sealed interface PupilEvents {
     object SyncPupils : PupilEvents
     //object RetrySync : PupilEvents
 
-    data class DeletePupils(val localPupil: PupilEntity) : PupilEvents
+    data class DeletePupils(val localPupilId: Int) : PupilEvents
 
     data class SavePupilEntity(
         val name: String,

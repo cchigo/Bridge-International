@@ -14,7 +14,7 @@ import retrofit2.http.Query
 interface PupilApi {
 
     @GET("pupils")
-    suspend fun getPupils(@Query("page") page: Int = 1): PupilsDTOResponse
+    suspend fun getPupils(@Query("page") page: Int? = 1): PupilsDTOResponse
 
 
     @GET("pupils/{pupilId}")

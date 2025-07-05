@@ -1,16 +1,13 @@
 package com.bridge.androidtechnicaltest.domain
 
-import android.util.Log
 import com.bridge.androidtechnicaltest.common.BaseResponse
 import com.bridge.androidtechnicaltest.common.ErrorApiResponse
 import com.bridge.androidtechnicaltest.common.NetworkChecker
-import com.bridge.androidtechnicaltest.common.Utils.generateTimestamp
 import com.bridge.androidtechnicaltest.data.database.PupilLocalDataSource
-import com.bridge.androidtechnicaltest.data.model.pupil.local.EntityModelMapper
-import com.bridge.androidtechnicaltest.data.model.pupil.local.Pupil
-import com.bridge.androidtechnicaltest.data.model.pupil.local.PupilEntity
+import com.bridge.androidtechnicaltest.data.models.local.EntityModelMapper
+import com.bridge.androidtechnicaltest.data.models.local.PupilEntity
 import com.bridge.androidtechnicaltest.data.model.pupil.remote.PupilDTO
-import com.bridge.androidtechnicaltest.data.model.pupil.remote.PupilDTOMapper
+import com.bridge.androidtechnicaltest.data.models.remote.PupilDTOMapper
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.emitAll
@@ -106,7 +103,8 @@ class GetPupilsUseCase @Inject constructor(
                         image = result.data.image ?: "",
                         latitude = result.data.latitude ?: 0.00,
                         longitude = result.data.longitude ?: 0.00,
-                    )))
+                    )
+                    ))
                 }
 
                 is BaseResponse.Error -> {

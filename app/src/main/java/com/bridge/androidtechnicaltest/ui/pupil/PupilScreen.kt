@@ -1,7 +1,5 @@
 package com.bridge.androidtechnicaltest.ui.pupil
 
-import android.util.Log
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -45,8 +43,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
@@ -55,9 +53,8 @@ import com.bridge.androidtechnicaltest.common.BaseResponse
 import com.bridge.androidtechnicaltest.common.ResponseAlertDialog
 import com.bridge.androidtechnicaltest.common.Utils.generateRandomImageUrl
 import com.bridge.androidtechnicaltest.common.Utils.generateRandomLocation
-import com.bridge.androidtechnicaltest.data.model.pupil.local.Pupil
+import com.bridge.androidtechnicaltest.data.models.local.Pupil
 import com.bridge.androidtechnicaltest.ui.viewmodel.PupilViewModel
-import com.chichi.projectsetupapp.ui.theme.AppTheme
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -69,7 +66,6 @@ fun PupilScreen(
   viewModel: PupilViewModel = hiltViewModel(),
 ) {
 
-  Log.d("PUPIL_ID_TAG", "PupilScreen: $localId")
   val pupilState by viewModel.pupilByIdState.collectAsState()
   val createState = viewModel.createState.collectAsState().value
   val updateState = viewModel.updateState.collectAsState().value
@@ -84,21 +80,17 @@ fun PupilScreen(
   var longitude by remember { mutableStateOf("") }
   var latitude by remember { mutableStateOf("") }
   var pupilId by remember { mutableIntStateOf(-1) }
-  var requestLocation by remember { mutableStateOf(false) }
 
   val isFormValid =
     name.isNotBlank() && country.isNotBlank() && longitude.isNotBlank() && latitude.isNotBlank()
 
   LaunchedEffect(localId, pupilState) {
-    //viewModel.getPupilsLocal(pupilState.pupilId ?: )
-    Log.d("PUPIL__TAG", "PupilScreen: $localId")
 
     localId?.let {
       viewModel.getPupilsLocal(it)
     }
 
     pupilState?.let { pupil ->
-      Log.d("PUPIL__TAG", "PupilScreen: $pupil")
       name = pupil.name ?: ""
       imageUrl = pupil.image ?: ""
       latitude = pupil.latitude.toString()
@@ -108,8 +100,12 @@ fun PupilScreen(
     }
   }
 
-  ObserveCreateState(
-    createState = createState,
+
+
+  ObserveResponseState(
+    state = createState,
+    errorMessage = stringResource(R.string.offline_create_error),
+    successMessage = stringResource(R.string.pupil_created_successfully),
     onSuccess = onNavigateUp,
     resetState = {
       viewModel.resetAllStates()
@@ -117,8 +113,10 @@ fun PupilScreen(
     }
   )
 
-  ObserveUpdateState(
-      updateState = updateState,
+
+  ObserveResponseState(
+    state = updateState,
+    successMessage = stringResource(R.string.pupil_updated_successfully),
     onSuccess = onNavigateUp,
     resetState = {
       viewModel.resetAllStates()
@@ -126,20 +124,20 @@ fun PupilScreen(
     }
   )
 
-  ObserveDeleteState (
-    deleteState = deleteState,
+  ObserveResponseState(
+    state = deleteState,
+    successMessage = stringResource(R.string.pupil_deleted_successfully),
     onSuccess = onNavigateUp,
     resetState = {
       viewModel.resetAllStates()
       onNavigateUp()
     }
   )
-
 
 
   Box(modifier = Modifier.fillMaxSize()) {
 
-    val screenTitle = if (pupilId == -1) "Create Pupil" else "Edit Pupil"
+    val screenTitle = if (pupilId == -1) stringResource(R.string.create_pupil) else stringResource(R.string.edit_pupil)
 
     Scaffold(
       topBar = {
@@ -167,34 +165,24 @@ fun PupilScreen(
         verticalArrangement = Arrangement.spacedBy(4.dp)
       ) {
         Text(
-          "Please fill out the pupil details below",
+          stringResource(R.string.please_fill_out_the_pupil_details_below),
           textAlign = TextAlign.Center,
           modifier = Modifier
             .padding(horizontal = 16.dp)
             .align(Alignment.CenterHorizontally)
         )
 
-        if (imageUrl.isBlank()) {
-          Image(
-            painter = painterResource(id = R.drawable.baseline_add_a_photo_24),
-            contentDescription = "Default Camera",
-            modifier = Modifier
-              .size(120.dp)
-              .clip(CircleShape)
-              .border(2.dp, Color.Gray, CircleShape)
-              .padding(32.dp)
-          )
-        } else {
           AsyncImage(
             model = imageUrl,
             contentDescription = "Pupil Image",
             contentScale = ContentScale.Crop,
+            placeholder = painterResource(R.drawable.baseline_add_a_photo_24),
             modifier = Modifier
               .clip(CircleShape)
               .size(120.dp)
               .border(2.dp, Color.Gray, CircleShape)
           )
-        }
+
 
         OutlinedTextField(
           value = name,
@@ -252,7 +240,10 @@ fun PupilScreen(
           }
 
           Button(
-            onClick = { pupilState?.let { viewModel.deletePupil(it) } },
+            onClick = {
+              if(localId != null){
+                pupilState?.let { viewModel.deletePupil(pupil = it, localId) }
+              }  },
             modifier = Modifier
               .wrapContentSize()
               .align(Alignment.End),
@@ -279,7 +270,6 @@ fun PupilScreen(
                 longitude = longitude.toDouble(),
                 latitude = latitude.toDouble()
               )
-              Log.d("CREATE_TAG", "PupilScreen: $pupil, localid is $localId")
               viewModel.createPupil(
                 pupil=pupil,
                 localId = localId.takeIf { it != null }
@@ -292,9 +282,6 @@ fun PupilScreen(
         }
       }
     }
-
-
-    // Show loader at bottom if any state is loading
     if (
       createState is BaseResponse.Loading ||
       updateState is BaseResponse.Loading ||
@@ -309,6 +296,9 @@ fun PupilScreen(
 
   }
 }
+
+
+
 
 
 @Composable
@@ -463,14 +453,52 @@ fun ObserveDeleteState(
 
 
 
-@Preview
+
 @Composable
-private fun PreviewSignUpScreen() {
-  AppTheme {
-    PupilScreen(
-        localId = 5,
-        onNavigateToMain = {},
-        onNavigateUp = {}
+fun <T> ObserveResponseState(
+  state: BaseResponse<T>,
+  successMessage: String,
+  errorMessage: String ?= null,
+  onSuccess: () -> Unit,
+  resetState: () -> Unit
+) {
+  var showDialog by remember { mutableStateOf(false) }
+  var dialogTitle by remember { mutableStateOf("") }
+  var dialogMessage by remember { mutableStateOf("") }
+  var isError by remember { mutableStateOf(false) }
+
+  LaunchedEffect(state) {
+    when (state) {
+      is BaseResponse.Success -> {
+        dialogTitle = "Success"
+        dialogMessage = successMessage
+        isError = false
+        showDialog = true
+      }
+
+      is BaseResponse.Error -> {
+        dialogTitle = "Error"
+        dialogMessage = state.error.title
+          ?: "An error occurred. Please try again."
+        isError = true
+        showDialog = true
+      }
+
+      else -> Unit
+    }
+  }
+
+  if (showDialog) {
+    ResponseAlertDialog(
+      title = dialogTitle,
+      message = dialogMessage,
+      confirmButtonText = "OK",
+      onDismiss = {},
+      onConfirm = {
+        showDialog = false
+        resetState()
+        if (!isError) onSuccess()
+      }
     )
   }
 }

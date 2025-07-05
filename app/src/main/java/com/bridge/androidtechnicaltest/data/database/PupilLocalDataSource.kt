@@ -1,6 +1,6 @@
 package com.bridge.androidtechnicaltest.data.database
 
-import com.bridge.androidtechnicaltest.data.model.pupil.local.PupilEntity
+import com.bridge.androidtechnicaltest.data.models.local.PupilEntity
 import kotlinx.coroutines.flow.Flow
 
 

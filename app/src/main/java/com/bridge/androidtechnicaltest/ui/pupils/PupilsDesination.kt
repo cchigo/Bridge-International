@@ -13,7 +13,7 @@ fun NavGraphBuilder.pupilListScreen(
     onNavigateToMain: () -> Unit,
 ) {
     composable<HomeDestination> {
-        PupilListScreen(
+        PupilsListScreen(
             onNavigateToMain = onNavigateToMain,
             onNavigateToPupil = onNavigateToPupil
         )

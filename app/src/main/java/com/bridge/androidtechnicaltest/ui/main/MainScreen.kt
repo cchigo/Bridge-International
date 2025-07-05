@@ -17,9 +17,9 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.bridge.androidtechnicaltest.ui.puplis.PendingPupilsDestination
-import com.bridge.androidtechnicaltest.ui.puplis.pendingPupils
-import com.bridge.androidtechnicaltest.ui.puplis.pendingPupilsScreen
+import com.bridge.androidtechnicaltest.ui.pendingpupils.PendingPupilsDestination
+import com.bridge.androidtechnicaltest.ui.pendingpupils.pendingPupils
+import com.bridge.androidtechnicaltest.ui.pendingpupils.pendingPupilsScreen
 import com.bridge.androidtechnicaltest.ui.pupils.HomeDestination
 import com.bridge.androidtechnicaltest.ui.pupils.navigateToPupilsList
 import com.bridge.androidtechnicaltest.ui.pupils.pupilListScreen

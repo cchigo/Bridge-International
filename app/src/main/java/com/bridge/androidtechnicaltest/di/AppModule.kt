@@ -1,9 +1,10 @@
 package com.bridge.androidtechnicaltest.di
 
 import android.app.Application
+import androidx.paging.ExperimentalPagingApi
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
 import androidx.room.Room
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
 import com.bridge.androidtechnicaltest.BuildConfig
 import com.bridge.androidtechnicaltest.common.Constants.API_TIMEOUT
 import com.bridge.androidtechnicaltest.common.Constants.BASE_URL
@@ -11,16 +12,15 @@ import com.bridge.androidtechnicaltest.common.Constants.requestId
 import com.bridge.androidtechnicaltest.common.Constants.userAgent
 import com.bridge.androidtechnicaltest.data.database.AppDatabase
 import com.bridge.androidtechnicaltest.data.database.AppDatabase.Companion.DB_NAME
+import com.bridge.androidtechnicaltest.data.network.PupilRemoteMediator
 import com.bridge.androidtechnicaltest.data.database.PupilDao
 import com.bridge.androidtechnicaltest.data.database.PupilLocalDataSource
-import com.bridge.androidtechnicaltest.data.database.RemoteKeysDao
-import com.bridge.androidtechnicaltest.data.model.pupil.local.EntityModelMapper
-import com.bridge.androidtechnicaltest.data.model.pupil.remote.PupilDTOMapper
+import com.bridge.androidtechnicaltest.data.models.local.EntityModelMapper
+import com.bridge.androidtechnicaltest.data.models.local.PupilEntity
+import com.bridge.androidtechnicaltest.data.models.remote.PupilDTOMapper
 import com.bridge.androidtechnicaltest.data.network.PupilApi
 import com.bridge.androidtechnicaltest.domain.PupilRepositoryImpl
-import com.bridge.androidtechnicaltest.domain.PupilsPagingRepository
 import com.bridge.androidtechnicaltest.domain.PupilsRepository
-import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -108,10 +108,6 @@ object ApiModule {
 
 
     @Provides
-    fun provideRemoteKeysDao(db: AppDatabase): RemoteKeysDao = db.remoteKeysDao()
-
-    //
-    @Provides
     fun provideEntityModelMapper(): EntityModelMapper {
         return EntityModelMapper()
     }
@@ -121,20 +117,30 @@ object ApiModule {
         return PupilDTOMapper()
     }
 
-    @Provides
-    fun providePupilsPagingRepository(
-        db: AppDatabase,
-        api: PupilApi,
-        entityMapper: EntityModelMapper,
-        dtoMapper: PupilDTOMapper
-    ): PupilsPagingRepository {
-        return PupilsPagingRepository(db, api, entityMapper, dtoMapper)
-    }
+
     @Provides
      fun bindPupilsRepository(
         impl: PupilRepositoryImpl
     ): PupilsRepository{
          return impl
      }
+
+    @OptIn(ExperimentalPagingApi::class)
+    @Provides
+    @Singleton
+    fun providePager(db: AppDatabase, pupilApi: PupilApi, entityMapper: EntityModelMapper, dtoMapper: PupilDTOMapper): Pager<Int, PupilEntity> {
+        return Pager(
+            config = PagingConfig(pageSize = 5, prefetchDistance = 3),
+            remoteMediator = PupilRemoteMediator(
+                pupilDB = db,
+                pupilApi = pupilApi,
+                entityMapper = entityMapper,
+                dtoMapper = dtoMapper,
+            ),
+            pagingSourceFactory = {
+                db.pupilDao().pagingSource()
+            }
+        )
+    }
 
 }

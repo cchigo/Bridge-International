@@ -8,7 +8,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import androidx.room.Upsert
-import com.bridge.androidtechnicaltest.data.model.pupil.local.PupilEntity
+import com.bridge.androidtechnicaltest.data.models.local.PupilEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -20,11 +20,16 @@ interface PupilDao : PupilLocalDataSource {
     @Upsert
     override suspend fun upsertPupil(pupil: PupilEntity)
 
+
+    @Upsert
+    suspend fun upsertAll(pupil: List<PupilEntity>)
+
+    @Query("SELECT * FROM pupils_table")
+    fun pagingSource(): PagingSource<Int, PupilEntity>
+
     @Upsert
     override suspend fun insertPupils(pupils: List<PupilEntity>)
 
-//    @Query("SELECT * FROM pupils_table")
-//    override fun getAllPupils(): Flow<List<PupilEntity>>
 
     @Query("SELECT * FROM pupils_table ORDER BY id DESC")
     override fun getAllPupils(): Flow<List<PupilEntity>>

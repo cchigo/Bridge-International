@@ -117,7 +117,8 @@ class PupilApiTest {
             country = "Kenya",
             image = "https://example.com/images.jpg",
             latitude = 5.6037,
-            longitude = 0.1870
+            longitude = 0.1870,
+            pupilId = 7665
         )
 
         val mockJson = """

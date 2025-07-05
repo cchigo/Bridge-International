@@ -8,4 +8,17 @@
 
     <string name="data_reset">Api Data Reset</string>
     <string name="data_reset_failed">Data Reset Failed</string>
+    <string name="unknown_error">Unknown error</string>
+    <string name="error_fetching_pupils_please_try_again">Error fetching pupils: %1$s. Please try again.</string>
+    <string name="error_loading_more_pupils_please_try_again">Error loading more pupils: %1$s. Please try again.</string>
+    <string name="add_new_pupil">Add new pupil</string>
+    <string name="no_results_found">No results found</string>
+    <string name="pupil_does_not_exist">Pupil does not exist</string>
+    <string name="offline_create_error">We noticed you are offline. The pupil will be synced once you are back online.</string>
+    <string name="pupil_created_successfully">Pupil created successfully!</string>
+    <string name="pupil_updated_successfully">Pupil updated successfully!</string>
+    <string name="pupil_deleted_successfully">Pupil deleted successfully!</string>
+    <string name="create_pupil">Create Pupil</string>
+    <string name="edit_pupil">Edit Pupil</string>
+    <string name="please_fill_out_the_pupil_details_below">Please fill out the pupil details below</string>
 </resources>

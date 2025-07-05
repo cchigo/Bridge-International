@@ -1,12 +1,12 @@
-package com.bridge.androidtechnicaltest.ui.puplis
+package com.bridge.androidtechnicaltest.ui.pendingpupils
 
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bridge.androidtechnicaltest.common.Utils.generateRandomImageUrl
-import com.bridge.androidtechnicaltest.data.model.pupil.local.EntityModelMapper
-import com.bridge.androidtechnicaltest.data.model.pupil.local.Pupil
-import com.bridge.androidtechnicaltest.data.model.pupil.remote.PupilDTOMapper
+import com.bridge.androidtechnicaltest.data.models.local.EntityModelMapper
+import com.bridge.androidtechnicaltest.data.models.local.Pupil
+import com.bridge.androidtechnicaltest.data.models.remote.PupilDTOMapper
 import com.bridge.androidtechnicaltest.domain.GetPupilsUseCase
 import com.bridge.androidtechnicaltest.domain.PupilManagerUsecase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,7 +32,7 @@ class PendingViewModel @Inject constructor(
 
     fun insertMockPupils() {
         viewModelScope.launch {
-            repeat(10) { index ->
+            repeat(4) { index ->
                 val mockPupil = Pupil(
                     name = "Pupil $index",
                     country = "Country $index",
@@ -71,18 +71,14 @@ class PendingViewModel @Inject constructor(
         when (event) {
             is PupilEvents.DeletePupils -> {
                 viewModelScope.launch {
-                    pupilManagerUsecase.delete(event.localPupil)
+
+                    pupilManagerUsecase.delete(event.localPupilId)
                 }
             }
 
-            is PupilEvents.SavePupilEntity -> {
+            is PupilEvents.SavePupilEntity -> {}
 
-
-            }
-
-            PupilEvents.SortPupils -> {
-
-            }
+            PupilEvents.SortPupils -> {}
 
             PupilEvents.SyncPupils -> {
                 viewModelScope.launch {
