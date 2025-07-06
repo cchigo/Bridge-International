@@ -9,7 +9,7 @@ import com.bridge.androidtechnicaltest.data.models.local.EntityModelMapper
 import com.bridge.androidtechnicaltest.data.models.local.Pupil
 import com.bridge.androidtechnicaltest.data.models.local.PupilEntity
 import com.bridge.androidtechnicaltest.data.models.remote.PupilDTOMapper
-import com.bridge.androidtechnicaltest.ui.pendingpupils.PendingViewModel
+import com.bridge.androidtechnicaltest.ui.viewmodel.PendingViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -232,7 +232,7 @@ class PupilManagerUsecase @Inject constructor(
         val failedPupils = mutableListOf<PupilEntity>()
         var syncedCount = 0
 
-        val list = localDataSource.getUnsyncedPupils().first() // 👈 one-time fetch
+        val list = localDataSource.getUnsyncedPupils().first()
 
         list.forEach { pupil ->
             delay(400L)

@@ -37,7 +37,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.bridge.androidtechnicaltest.R
 import com.bridge.androidtechnicaltest.common.BaseResponse
 import com.bridge.androidtechnicaltest.data.models.local.PupilEntity
-import com.bridge.androidtechnicaltest.ui.pendingpupils.PupilsViewmodel
+import com.bridge.androidtechnicaltest.ui.viewmodel.PupilsViewmodel
 import kotlinx.coroutines.delay
 
 @Composable

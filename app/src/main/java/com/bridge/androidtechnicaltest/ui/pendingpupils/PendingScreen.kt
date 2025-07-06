@@ -49,6 +49,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bridge.androidtechnicaltest.common.ResponseAlertDialog
 import com.bridge.androidtechnicaltest.data.models.local.PupilEntity
+import com.bridge.androidtechnicaltest.ui.viewmodel.PendingViewModel
 
 @Composable
 fun PendingScreen(

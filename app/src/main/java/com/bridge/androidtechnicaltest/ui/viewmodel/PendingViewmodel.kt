@@ -1,4 +1,4 @@
-package com.bridge.androidtechnicaltest.ui.pendingpupils
+package com.bridge.androidtechnicaltest.ui.viewmodel
 
 
 import androidx.lifecycle.ViewModel
@@ -6,9 +6,10 @@ import androidx.lifecycle.viewModelScope
 import com.bridge.androidtechnicaltest.common.Utils.generateRandomImageUrl
 import com.bridge.androidtechnicaltest.data.models.local.EntityModelMapper
 import com.bridge.androidtechnicaltest.data.models.local.Pupil
-import com.bridge.androidtechnicaltest.data.models.remote.PupilDTOMapper
 import com.bridge.androidtechnicaltest.domain.GetPupilsUseCase
 import com.bridge.androidtechnicaltest.domain.PupilManagerUsecase
+import com.bridge.androidtechnicaltest.ui.pendingpupils.PupilEventState
+import com.bridge.androidtechnicaltest.ui.pendingpupils.PupilEvents
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -25,7 +26,6 @@ import javax.inject.Inject
 class PendingViewModel @Inject constructor(
     private val getPupilsUseCase: GetPupilsUseCase,
     private val pupilManagerUsecase: PupilManagerUsecase,
-    private val dtoMapper: PupilDTOMapper,
     private val entityModelMapper: EntityModelMapper,
 ) : ViewModel() {
 
@@ -88,8 +88,6 @@ class PendingViewModel @Inject constructor(
                         .collect { result ->
                             _syncState.value = result
                         }
-
-                    // this  resets state after sync
                     delay(3000)
                     _syncState.value = null
                 }

@@ -1,10 +1,8 @@
-package com.bridge.androidtechnicaltest.ui.pendingpupils
+package com.bridge.androidtechnicaltest.ui.viewmodel
 
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.CombinedLoadStates
-import androidx.paging.LoadState
 import androidx.paging.Pager
 import androidx.paging.PagingData
 import com.bridge.androidtechnicaltest.common.BaseResponse

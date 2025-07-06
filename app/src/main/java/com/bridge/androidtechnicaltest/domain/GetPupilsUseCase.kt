@@ -1,5 +1,6 @@
 package com.bridge.androidtechnicaltest.domain
 
+import android.util.Log
 import com.bridge.androidtechnicaltest.common.BaseResponse
 import com.bridge.androidtechnicaltest.common.ErrorApiResponse
 import com.bridge.androidtechnicaltest.common.NetworkChecker
@@ -31,11 +32,11 @@ class GetPupilsUseCase @Inject constructor(
 ) {
 
     fun getUnsyncedPupilsFromDB(): Flow<List<PupilEntity>> {
+        Log.d("NEW_TAG", "getUnsyncedPupilsFromDB: ")
         return localDataSource.getUnsyncedPupils()
             .catch { e ->
 
                 emit(emptyList())
-
             }
     }
 

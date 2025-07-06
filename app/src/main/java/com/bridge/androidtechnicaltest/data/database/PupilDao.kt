@@ -24,7 +24,7 @@ interface PupilDao : PupilLocalDataSource {
     @Upsert
     suspend fun upsertAll(pupil: List<PupilEntity>)
 
-    @Query("SELECT * FROM pupils_table")
+    @Query("SELECT * FROM pupils_table WHERE is_synced = 1 ORDER BY pupilId DESC")
     fun pagingSource(): PagingSource<Int, PupilEntity>
 
     @Upsert
@@ -41,27 +41,10 @@ interface PupilDao : PupilLocalDataSource {
     @Update
     override suspend fun updatePupil(pupil: PupilEntity)
 
-
-
     @Query("SELECT * FROM pupils_table WHERE is_synced = 1 ORDER BY pupilId DESC")
-    fun getPagedPupils(): PagingSource<Int, PupilEntity>
-
-
-
-    @Query("SELECT * FROM pupils_table WHERE is_synced = 1 ORDER BY pupilId DESC")
-    fun getPagedSyncedPupils(): PagingSource<Int, PupilEntity>
-
-
+    override fun getSyncedPupils(): Flow<List<PupilEntity>>
 
     //  Search methods
-    @Query("SELECT * FROM pupils_table WHERE name LIKE '%' || :query || '%'")
-    override fun searchPupilsByName(query: String): Flow<List<PupilEntity>>
-
-    @Query("SELECT * FROM pupils_table WHERE country = :country")
-    override fun filterPupilsByCountry(country: String): Flow<List<PupilEntity>>
-
-    @Query("SELECT * FROM pupils_table WHERE pupilId = :id")
-    override suspend fun searchById(id: Long): PupilEntity?
 
     @Query("DELETE FROM pupils_table WHERE id = :localId")
     override suspend fun deletePupilById(localId: Int)
