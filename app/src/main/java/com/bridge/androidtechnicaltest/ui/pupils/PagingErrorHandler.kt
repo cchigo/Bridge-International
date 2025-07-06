@@ -4,6 +4,8 @@ import android.content.Context
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.bridge.androidtechnicaltest.R
@@ -11,24 +13,27 @@ import com.bridge.androidtechnicaltest.data.models.local.PupilEntity
 
 @Composable
 fun LazyPagingItems<PupilEntity>.PagingErrorHandler(context: Context) {
+    // Remember retry attempt count across recompositions
+    val retryCount = remember { mutableStateOf(0) }
+
     LaunchedEffect(key1 = loadState) {
         val refreshState = loadState.refresh
         val appendState = loadState.append
 
         if (refreshState is LoadState.Error) {
-            val errorMessage = refreshState.error.localizedMessage ?: context.getString(R.string.unknown_error)
-            val text = context.getString(R.string.error_fetching_pupils_please_try_again, errorMessage)
-            Toast.makeText(context, text, Toast.LENGTH_LONG).show()
+           Toast.makeText(context, context.getString(R.string.error_fetching_pupils_please_try_again), Toast.LENGTH_LONG).show()
+            if (retryCount.value < 1) {
+                retryCount.value++
+                retry()
+            }
         }
 
         if (appendState is LoadState.Error) {
-            val errorMessage = appendState.error.localizedMessage ?: context.getString(R.string.unknown_error)
-            val text = context.getString(R.string.error_loading_more_pupils_please_try_again, errorMessage)
-            Toast.makeText(context, text, Toast.LENGTH_LONG).show()
-        }
-
-        if (refreshState is LoadState.Error || appendState is LoadState.Error) {
-            retry()
+           Toast.makeText(context, context.getString(R.string.error_loading_more_pupils_please_try_again), Toast.LENGTH_LONG).show()
+            if (retryCount.value < 2) {
+                retryCount.value++
+                retry()
+            }
         }
     }
 }

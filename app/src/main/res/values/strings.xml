@@ -9,8 +9,8 @@
     <string name="data_reset">Api Data Reset</string>
     <string name="data_reset_failed">Data Reset Failed</string>
     <string name="unknown_error">Unknown error</string>
-    <string name="error_fetching_pupils_please_try_again">Error fetching pupils: %1$s. Please try again.</string>
-    <string name="error_loading_more_pupils_please_try_again">Error loading more pupils: %1$s. Please try again.</string>
+    <string name="error_fetching_pupils_please_try_again">Error fetching pupils. Please try again.</string>
+    <string name="error_loading_more_pupils_please_try_again">Error loading more pupils. Please try again.</string>
     <string name="add_new_pupil">Add new pupil</string>
     <string name="no_results_found">No results found</string>
     <string name="pupil_does_not_exist">Pupil does not exist</string>
