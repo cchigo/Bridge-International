@@ -24,12 +24,6 @@ interface PupilDao : PupilLocalDataSource {
     @Upsert
     suspend fun upsertAll(pupil: List<PupilEntity>)
 
-    @Query("SELECT * FROM pupils_table WHERE is_synced = 1 ORDER BY pupilId DESC")
-    fun pagingSource(): PagingSource<Int, PupilEntity>
-
-    @Upsert
-    override suspend fun insertPupils(pupils: List<PupilEntity>)
-
 
     @Query("SELECT * FROM pupils_table ORDER BY id DESC")
     override fun getAllPupils(): Flow<List<PupilEntity>>
@@ -41,27 +35,29 @@ interface PupilDao : PupilLocalDataSource {
     @Update
     override suspend fun updatePupil(pupil: PupilEntity)
 
-    @Query("SELECT * FROM pupils_table WHERE is_synced = 1 ORDER BY pupilId DESC")
-    override fun getSyncedPupils(): Flow<List<PupilEntity>>
 
-    //  Search methods
+    @Query("SELECT * FROM pupils_table WHERE is_synced = 1 AND is_deleted = 0 ")
+    fun getPagedSyncedPupils(): PagingSource<Int, PupilEntity>
 
     @Query("DELETE FROM pupils_table WHERE id = :localId")
     override suspend fun deletePupilById(localId: Int)
 
-    @Query("SELECT * FROM pupils_table WHERE is_deleted = 1")
-    suspend fun getDeletedPupils(): List<PupilEntity>
 
-    @Query("DELETE FROM pupils_table")
+    @Query("DELETE FROM pupils_table WHERE is_synced = 1 AND is_deleted = 0")
     override suspend fun deleteAllPupils()
+
 
     @Query("SELECT * FROM pupils_table WHERE is_synced = 0 ORDER BY time_stamp DESC")
     override  fun getUnsyncedPupils(): Flow<List<PupilEntity>>
 
+    @Query("SELECT * FROM pupils_table WHERE  is_deleted = 1")
+    override fun getDeleteList(): Flow<List<PupilEntity>>
+
+    @Query("SELECT * FROM pupils_table WHERE is_synced = 0 OR is_deleted = 1 ORDER BY time_stamp DESC")
+    override fun getAllPendingItems(): Flow<List<PupilEntity>>
 
     @Delete
     override suspend fun delete(pupil: PupilEntity)
-
 
 
 }

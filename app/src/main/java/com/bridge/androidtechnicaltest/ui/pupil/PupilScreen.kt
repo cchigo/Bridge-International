@@ -72,8 +72,6 @@ fun PupilScreen(
   val deleteState = viewModel.deleteState.collectAsState().value
 
 
-
-
   var imageUrl by remember { mutableStateOf("") }
   var name by remember { mutableStateOf("") }
   var country by remember { mutableStateOf("") }
@@ -124,6 +122,7 @@ fun PupilScreen(
     }
   )
 
+  //delete
   ObserveResponseState(
     state = deleteState,
     successMessage = stringResource(R.string.pupil_deleted_successfully),

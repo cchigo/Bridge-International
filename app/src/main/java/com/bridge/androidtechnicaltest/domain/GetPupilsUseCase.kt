@@ -1,6 +1,5 @@
 package com.bridge.androidtechnicaltest.domain
 
-import android.util.Log
 import com.bridge.androidtechnicaltest.common.BaseResponse
 import com.bridge.androidtechnicaltest.common.ErrorApiResponse
 import com.bridge.androidtechnicaltest.common.NetworkChecker
@@ -25,63 +24,8 @@ import javax.inject.Inject
  */
 class GetPupilsUseCase @Inject constructor(
     private val repository: PupilsRepository,
-    private val localDataSource: PupilLocalDataSource,
-    private val dtoMapper: PupilDTOMapper,
-    private val localMapper: EntityModelMapper,
-    private val networkChecker: NetworkChecker
+    private val localDataSource: PupilLocalDataSource
 ) {
-
-    fun getUnsyncedPupilsFromDB(): Flow<List<PupilEntity>> {
-        Log.d("NEW_TAG", "getUnsyncedPupilsFromDB: ")
-        return localDataSource.getUnsyncedPupils()
-            .catch { e ->
-
-                emit(emptyList())
-            }
-    }
-
-
-//manual fetching from remote
-    fun getPupils(page: Int = 1): Flow<BaseResponse<List<PupilEntity>>> = flow {
-        emit(BaseResponse.Loading)
-
-        val localData = getLocalPupils().first()
-
-        if (networkChecker.isConnected()) {
-            when (val result = repository.getPupils(page)) {
-
-                is BaseResponse.Success -> {
-                    val pupilRemoteList = result.data.items
-                    saveRemoteListToDb(pupilRemoteList)
-                }
-
-                is BaseResponse.Error -> {
-                    emit(BaseResponse.Error(result.error))
-                }
-
-                else -> {
-                    BaseResponse.Error(ErrorApiResponse("Unable to fetch pupils, please try again"))
-                }
-            }
-        } else if (localData.isEmpty()) {
-            emit(BaseResponse.Error(ErrorApiResponse("No internet connection")))
-        }
-
-        emitAll(getLocalPupils().map { BaseResponse.Success(it) })
-
-    }
-
-
-    private suspend fun saveRemoteListToDb(pupilRemoteList: List<PupilDTO>?) {
-        val mappedRemote = localMapper.toList(dtoMapper.fromList(pupilRemoteList))
-        localDataSource.insertPupils(mappedRemote)
-    }
-
-
-    private fun getLocalPupils(): Flow<List<PupilEntity>> {
-        return localDataSource.getAllPupils()
-    }
-
 
     fun getPupilById(pupilId: Int): Flow<BaseResponse<PupilEntity>> = flow {
         emit(BaseResponse.Loading)
@@ -92,8 +36,6 @@ class GetPupilsUseCase @Inject constructor(
             emit(BaseResponse.Success(localPupil))
             return@flow
         }
-
-        if (networkChecker.isConnected()) {
             when (val result = repository.getPupilById(pupilId)) {
                 is BaseResponse.Success -> {
 
@@ -116,26 +58,16 @@ class GetPupilsUseCase @Inject constructor(
                     emit(BaseResponse.Error(ErrorApiResponse(title = "Pupil not found. Please try again.")))
                 }
             }
-        } else {
-            emit(BaseResponse.Error(ErrorApiResponse(title ="Unable to load pupil details. Please check your internet connection and try again.")))
-        }
     }
 
-
-
-
-    private suspend fun insertInDb(pupilEntity: PupilEntity, localId: Int?) {
-        try {
-
-            if(localId == null){
-                localDataSource.upsertPupil(pupilEntity)
-            }else{
-                localDataSource.insertPupil(pupilEntity)
+    fun getUnsyncedPupilsFromDB(): Flow<List<PupilEntity>> {
+        return localDataSource.getAllPendingItems()
+            .catch { e ->
+                emit(emptyList())
             }
-
-        } catch (e: Exception) {
-        }
     }
+
+
 
 }
 

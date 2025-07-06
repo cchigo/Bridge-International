@@ -18,7 +18,7 @@ class EntityModelMapper: BaseModelMapper<Pupil, PupilEntity> {
     override fun to(data: Pupil): PupilEntity {
         return PupilEntity(
             name = data.name ?: "" ,
-            pupilId = data.pupilId ?: 0,
+            pupilId = data.pupilId ,
             country = data.country ?: "",
             image = data.image ?: "",
             latitude = data.latitude ?: 0.00,

@@ -13,16 +13,19 @@ import androidx.compose.ui.graphics.Color
 @Composable
 fun ResponseAlertDialog(
     title: String,
-    message: String,
+    message: String? = null,
     confirmButtonText: String,
     onConfirm: () -> Unit,
-    onDismiss:  (() -> Unit)?,
-    confirmButtonColor: Color = MaterialTheme.colorScheme.primary
+    onDismiss: (() -> Unit)? = null,
+    confirmButtonColor: Color = MaterialTheme.colorScheme.primary,
+    custom: (@Composable () -> Unit)? = null
 ) {
     AlertDialog(
         onDismissRequest = { },
         title = { Text(title) },
-        text = { Text(message) },
+        text = {
+            custom?.invoke() ?: message?.let { Text(it) }
+        },
         confirmButton = {
             Button(
                 onClick = onConfirm,
@@ -40,8 +43,5 @@ fun ResponseAlertDialog(
                 }
             }
         }
-
-        ,
-
     )
 }

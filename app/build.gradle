@@ -127,9 +127,13 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.mockwebserver)
 
-    implementation("io.coil-kt:coil-compose:2.5.0")
-    implementation "androidx.paging:paging-runtime:3.2.1"
+    implementation(libs.coil.compose)
+    implementation(libs.paging.runtime)
+    implementation(libs.timber)
 
-    implementation("com.jakewharton.timber:timber:5.0.1")
+    implementation(libs.work.manager)
+    implementation(libs.work.manager.dagger)
+    ksp(libs.work.manager.dagger.kapt)
+
 }
 

@@ -17,12 +17,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Refresh
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -40,29 +36,48 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bridge.androidtechnicaltest.common.ResponseAlertDialog
 import com.bridge.androidtechnicaltest.data.models.local.PupilEntity
-import com.bridge.androidtechnicaltest.ui.viewmodel.PendingViewModel
+import com.bridge.androidtechnicaltest.domain.PendingStatus
+
 
 @Composable
 fun PendingScreen(
     onNavigateToPupil: (pupilId: Int) -> Unit,
    viewModel: PendingViewModel = hiltViewModel()
 ) {
-    val state by viewModel.state.collectAsState()
-    val syncState by viewModel.syncState.collectAsState()
+    val state by viewModel.pendingState.collectAsState()
+    val status by viewModel.workerStatus.collectAsState()
+    var showDialog by remember { mutableStateOf(false) }
+    var dialogMessage by remember { mutableStateOf("") }
 
-    LaunchedEffect(Unit) {
-        // viewModel.insertMockPupils()
+    LaunchedEffect(status) {
+        status?.let {
+            when (it) {
+                PendingStatus.STARTED -> {
+                    dialogMessage = "PW_MockSync started..."
+                    showDialog = true
+                }
+                PendingStatus.SUCCESS -> {
+                    dialogMessage = "PW_MockSync completed!"
+                    showDialog = true
+                }
+                PendingStatus.FAILED -> {
+                    dialogMessage = "PW_MockSync failed!"
+                    showDialog = true
+                }
+
+                PendingStatus.EMPTY ->{showDialog = true}
+            }
+        }
     }
-
 
     Scaffold(
         topBar = {
@@ -80,10 +95,7 @@ fun PendingScreen(
                     modifier = Modifier
                         .weight(1f)
                         .padding(start = 20.dp)
-                        .clickable {
-
-                            //   viewModel.insertMockPupils()
-                        },
+                    ,
                     fontSize = 17.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onPrimary,
@@ -94,7 +106,7 @@ fun PendingScreen(
                 }) {
                     Icon(
                         imageVector = Icons.Rounded.Refresh,
-                        contentDescription = "Sort Notes",
+                        contentDescription = "Sync",
                         modifier = Modifier.size(35.dp),
                         tint = MaterialTheme.colorScheme.onPrimary
                     )
@@ -131,73 +143,46 @@ fun PendingScreen(
         }
 
 
-        if (syncState != null) {
-            Dialog(onDismissRequest = {}) {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(32.dp),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        when (val state = syncState) {
-                            is PendingViewModel.SyncResult.Started, is PendingViewModel.SyncResult.Progress -> {
-                                CircularProgressIndicator()
-                                Text(
-                                    "Syncing in progress...",
-                                    modifier = Modifier.padding(top = 16.dp)
+        if (showDialog) {
+            ResponseAlertDialog(
+                title = "Sync Status",
+                confirmButtonText = "OK",
+                onConfirm = { showDialog = false },
+                onDismiss = { showDialog = false },
+                custom = {
+                    when (status) {
+                        PendingStatus.STARTED -> {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(20.dp),
+                                    strokeWidth = 2.dp
                                 )
+                                Text("Please hold on, we are sending your pupil data to the server")
                             }
-
-                            is PendingViewModel.SyncResult.Success -> {
-                                Icon(
-                                    imageVector = Icons.Default.CheckCircle,
-                                    contentDescription = null,
-                                    tint = Color.Green,
-                                    modifier = Modifier.size(48.dp)
-                                )
-                                Text(
-                                    "All pupils synced successfully!",
-                                    modifier = Modifier.padding(top = 8.dp)
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
-                                Button(onClick = { viewModel.clearSyncState() }) {
-                                    Text("Close")
-                                }
-                            }
-
-                            is PendingViewModel.SyncResult.Failure -> {
-                                Icon(
-                                    imageVector = Icons.Default.Warning,
-                                    contentDescription = null,
-                                    tint = Color.Red,
-                                    modifier = Modifier.size(48.dp)
-                                )
-                                Text(
-                                    state.message ?: "Failed to sync ${state.failedCount} pupil(s)",
-                                    modifier = Modifier.padding(top = 8.dp)
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
-                                Button(onClick = { viewModel.clearSyncState() }) {
-                                    Text("Close")
-                                }
-                            }
-
-                            null -> Unit
                         }
+                        PendingStatus.SUCCESS -> {
+                            Text("Sync completed successfully!.")
+                        }
+                        PendingStatus.FAILED -> {
+                            Text("Sync failed. Please try again.")
+                        }
+                      PendingStatus.EMPTY ->{
+                          Text("Empty list")
+                      }
 
+                        null -> {Text("null")}
                     }
                 }
-            }
+            )
         }
 
-
     }
-
 }
+
+
 
 
 @Composable
@@ -209,17 +194,21 @@ fun PupilItem(
     onNavigateToPupil: (pupilId: Int) -> Unit
 ) {
     var showDialog by remember { mutableStateOf(false) }
+    val isClickable = pupil.isDeleted == true
+
     Row(modifier = Modifier
         .fillMaxWidth()
         .clip(RoundedCornerShape(10.dp))
-        .background(MaterialTheme.colorScheme.primaryContainer)
+        .background( MaterialTheme.colorScheme.primaryContainer)
         .padding(12.dp)
-        .clickable {
-            onNavigateToPupil(pupil.id)
-        }) {
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
+        .alpha(if (!isClickable) 1f else 0.2f)
+        .clickable(
+            enabled = !isClickable,
+            onClick = { onNavigateToPupil(pupil.id) }
+        )
+
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
 
             Text(
                 text = pupil.name ?: "sample",
@@ -227,9 +216,7 @@ fun PupilItem(
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSecondaryContainer
             )
-
             Spacer(modifier = Modifier.height(8.dp))
-
             Text(
                 text = pupil.country ?: "USA",
                 fontSize = 16.sp,
@@ -238,18 +225,13 @@ fun PupilItem(
 
         }
 
-        IconButton(onClick = {
-            showDialog = true
-
-        }) {
-
+        IconButton(onClick = { showDialog = true }) {
             Icon(
                 imageVector = Icons.Rounded.Delete,
                 contentDescription = "Delete",
                 modifier = Modifier.size(35.dp),
                 tint = MaterialTheme.colorScheme.onPrimaryContainer
             )
-
         }
 
         if (showDialog) {
@@ -262,39 +244,17 @@ fun PupilItem(
                 },
                 onConfirm = {
                     showDialog = false
-
                     onEvent(PupilEvents.DeletePupils(state.pupilsLocal[index].id))
-
                 })
         }
-
     }
-
 
 }
 
-data class PupilEventState(
-
-    val pupilsLocal: List<PupilEntity> = emptyList(),
-    val name: MutableState<String> = mutableStateOf(""),
-    val country: MutableState<String> = mutableStateOf(""),
-    val latitude: MutableState<Double> = mutableDoubleStateOf(0.00),
-    val longitude: MutableState<Double> = mutableDoubleStateOf(0.00)
-
-)
+data class PupilEventState( val pupilsLocal: List<PupilEntity> = emptyList() )
 
 sealed interface PupilEvents {
-    object SortPupils : PupilEvents
     object SyncPupils : PupilEvents
-    //object RetrySync : PupilEvents
-
     data class DeletePupils(val localPupilId: Int) : PupilEvents
-
-    data class SavePupilEntity(
-        val name: String,
-        val country: String,
-        val latitude: Double,
-        val longitude: Double,
-    ) : PupilEvents
 }
 

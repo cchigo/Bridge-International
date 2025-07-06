@@ -18,7 +18,7 @@ data class PupilEntity(
     val id: Int = 0,
 
     @ColumnInfo(name = "pupilId")
-    val pupilId: Int,
+    val pupilId: Int?,
 
     @ColumnInfo(name = "name")
     val name: String?, //todo: split this into first and last name
@@ -36,7 +36,7 @@ data class PupilEntity(
     val longitude: Double?,
 
     @ColumnInfo(name = "is_synced")
-    val isSynced: Boolean? = false,
+    val isSynced: Boolean? = true,
 
     @ColumnInfo(name = "time_stamp")
     val timeStamp: Long = System.currentTimeMillis(),

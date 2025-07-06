@@ -1,15 +1,18 @@
 package com.bridge.androidtechnicaltest.di
 
 import android.app.Application
+import android.content.Context
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.room.Room
+import androidx.work.WorkManager
 import com.bridge.androidtechnicaltest.BuildConfig
 import com.bridge.androidtechnicaltest.common.Constants.API_TIMEOUT
 import com.bridge.androidtechnicaltest.common.Constants.BASE_URL
 import com.bridge.androidtechnicaltest.common.Constants.requestId
 import com.bridge.androidtechnicaltest.common.Constants.userAgent
+import com.bridge.androidtechnicaltest.common.NetworkChecker
 import com.bridge.androidtechnicaltest.data.database.AppDatabase
 import com.bridge.androidtechnicaltest.data.database.AppDatabase.Companion.DB_NAME
 import com.bridge.androidtechnicaltest.data.network.PupilRemoteMediator
@@ -24,6 +27,7 @@ import com.bridge.androidtechnicaltest.domain.PupilsRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -125,6 +129,11 @@ object ApiModule {
          return impl
      }
 
+    @Provides
+    fun provideNetworkChecker(@ApplicationContext context: Context): NetworkChecker {
+        return NetworkChecker(context)
+    }
+
     @OptIn(ExperimentalPagingApi::class)
     @Provides
     @Singleton
@@ -134,13 +143,20 @@ object ApiModule {
             remoteMediator = PupilRemoteMediator(
                 pupilDB = db,
                 pupilApi = pupilApi,
-                entityMapper = entityMapper,
                 dtoMapper = dtoMapper,
             ),
             pagingSourceFactory = {
-                db.pupilDao().pagingSource()
+                db.pupilDao().getPagedSyncedPupils()
             }
         )
     }
+
+    @Singleton
+    @Provides
+    fun provideWorkManager(@ApplicationContext context: Context): WorkManager {
+        return WorkManager.getInstance(context)
+    }
+
+
 
 }

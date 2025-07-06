@@ -6,7 +6,6 @@ import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
 import com.bridge.androidtechnicaltest.data.database.AppDatabase
-import com.bridge.androidtechnicaltest.data.models.local.EntityModelMapper
 import com.bridge.androidtechnicaltest.data.models.local.PupilEntity
 import com.bridge.androidtechnicaltest.data.models.remote.PupilDTOMapper
 import retrofit2.HttpException
@@ -16,12 +15,12 @@ import java.io.IOException
 class PupilRemoteMediator(
     private val pupilDB: AppDatabase,
     private val pupilApi: PupilApi,
-
-    private val entityMapper: EntityModelMapper,
     private val dtoMapper: PupilDTOMapper
 ): RemoteMediator<Int, PupilEntity>() {
 
-
+//    override suspend fun initialize(): InitializeAction {
+//        return InitializeAction.LAUNCH_INITIAL_REFRESH
+//    }
 
     override suspend fun load(
         loadType: LoadType,
@@ -50,10 +49,8 @@ class PupilRemoteMediator(
             pupilDB.withTransaction {
                 val pupilEntities = dtoMapper.convertDtoListToEntityList(pupilsRemote.items)
                 if(loadType == LoadType.REFRESH) {
-                  //  pupilDB.pupilDao().deleteAllPupils()
+                   pupilDB.pupilDao().deleteAllPupils()
                 }
-
-
                 pupilDB.pupilDao().upsertAll(pupilEntities)
             }
             MediatorResult.Success(
@@ -65,6 +62,4 @@ class PupilRemoteMediator(
             MediatorResult.Error(e)
         }
     }
-
-
 }

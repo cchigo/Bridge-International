@@ -1,7 +1,4 @@
 [versions]
-compileSdkVersion = "35"
-minSdkVersion = "26"
-javaVersion = "17"
 agp = "8.6.0"
 kotlin = "2.0.0"
 ksp = "2.0.0-1.0.21"
@@ -14,7 +11,6 @@ lifecycleRuntimeKtx = "2.9.1"
 activityCompose = "1.10.1"
 composeBom = "2025.02.00"
 composeNavigationVersion = "2.8.4"
-navigationCommonAndroid = "2.9.0"
 room = "2.7.2"
 gson = "2.11.0"
 kotlin-coroutines = "1.8.0"
@@ -34,8 +30,11 @@ androidx-arch-core = "2.2.0"
 composeTestJunit4 = "1.6.7"
 material3Android = "1.3.2"
 playServicesLocation = "21.3.0"
-
-
+coil = "2.5.0"
+paging = "3.2.1"
+timber = "5.0.1"
+workmanager = "2.9.1"
+hiltWork = "1.2.0"
 
 
 [libraries]
@@ -45,11 +44,8 @@ androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecyc
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.8.0" }
 
-
 # Compose BOM
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
-#androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "composeBom" } # <--- ENSURE THIS IS PRESENT
-
 
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 
@@ -58,11 +54,7 @@ androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
-
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4", version.ref = "composeTestJunit4" }
-#androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
-
-#androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 
 # Navigation and Hilt Compose
 androidx-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "composeNavigationVersion" }
@@ -82,12 +74,9 @@ kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-cor
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
 
-
+#okhttp
 okhttp-bom = { group = "com.squareup.okhttp3", name = "okhttp-bom", version.ref = "okhttp-bom" }
-okhttp = { group = "com.squareup.okhttp3", name = "okhttp" } # Use without version as part of BOM
-
-#
-#okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp-bom" }
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp" }
 okhttp-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp-bom" }
 
 # Gson
@@ -106,8 +95,6 @@ junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 
-# Navigation Common
-androidx-navigation-common-android = { group = "androidx.navigation", name = "navigation-common-android", version.ref = "navigationCommonAndroid" }
 
 # Mock and Robolectric
 mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "mockwebserver" }
@@ -124,6 +111,14 @@ androidx-arch-core-testing = { group = "androidx.arch.core", name = "core-testin
 androidx-material3-android = { group = "androidx.compose.material3", name = "material3-android", version.ref = "material3Android" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 
+
+work-manager = { module = "androidx.work:work-runtime-ktx", version.ref = "workmanager" }
+work-manager-dagger = { module = "androidx.hilt:hilt-work", version.ref = "hiltWork" }
+work-manager-dagger-kapt = { module = "androidx.hilt:hilt-compiler", version.ref = "hiltWork" }
+
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
+paging-runtime = { module = "androidx.paging:paging-runtime", version.ref = "paging" }
+timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 
 [bundles]
 androidx = ["androidx-core-ktx", "androidx-lifecycle-runtime-ktx", "androidx-activity-compose"]

@@ -57,11 +57,11 @@ fun PupilsListScreen(
 
     LaunchedEffect(shouldRetryLoad, isConnected) {
         if (shouldRetryLoad && !isConnected) {
-           while (!isConnected) {
+            while (!isConnected) {
                 delay(3000)
             }
             if (isConnected && shouldRetryLoad) {
-              pupils.refresh()
+                pupils.refresh()
             }
         }
     }
