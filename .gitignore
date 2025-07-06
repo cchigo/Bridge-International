@@ -7,3 +7,12 @@
 /build
 /captures
 .idea/
+
+# Ignore APK, AAB, and other generated binaries
+*.apk
+*.aab
+*.dex
+*.class
+*.jar
+*.aar
+*.so
