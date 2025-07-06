@@ -1,5 +1,6 @@
 package com.bridge.androidtechnicaltest.ui.pupils
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -35,6 +37,9 @@ fun PupilListItem(
             .padding(vertical = 12.dp, horizontal = 16.dp)
             .clickable { onClick(pupil.id) }
             .alpha(if (isSynced) 1f else 0.5f),
+        colors = ListItemDefaults.colors(
+            containerColor = Color(0xFFEEEEEE)
+        ),
         leadingContent = {
             AsyncImage(
                 model = pupil.image,
@@ -47,7 +52,7 @@ fun PupilListItem(
             )
         },
         headlineContent = {
-            Text(text = pupil.name ?: "Unnamed")
+            Text(text = pupil.name ?: "")
         },
         trailingContent = {
             if (!isSynced) {

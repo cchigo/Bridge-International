@@ -23,19 +23,19 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
 fun ApiSearchBar(
     modifier: Modifier = Modifier,
     onSearch: (String) -> Unit
 ) {
     var query by remember { mutableStateOf("") }
 
-    // Debounce search input
     LaunchedEffect(query) {
         snapshotFlow { query }
             .debounce(500)
@@ -81,4 +81,3 @@ fun ApiSearchBar(
 
     }
 }
-//todo: ensure keyboard shows only numbers

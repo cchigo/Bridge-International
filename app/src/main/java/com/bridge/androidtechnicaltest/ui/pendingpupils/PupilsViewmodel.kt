@@ -3,9 +3,12 @@ package com.bridge.androidtechnicaltest.ui.pendingpupils
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.CombinedLoadStates
+import androidx.paging.LoadState
 import androidx.paging.Pager
 import androidx.paging.PagingData
 import com.bridge.androidtechnicaltest.common.BaseResponse
+import com.bridge.androidtechnicaltest.common.NetworkChecker
 import com.bridge.androidtechnicaltest.data.models.local.PupilEntity
 import com.bridge.androidtechnicaltest.domain.GetPupilsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,6 +24,7 @@ import javax.inject.Inject
 class PupilsViewmodel @Inject constructor(
     pager: Pager<Int, PupilEntity>,
     private val getPupilsUseCase: GetPupilsUseCase,
+    private val networkChecker: NetworkChecker
 ): ViewModel() {
 
     val pupilsPagingFlow = pager
@@ -29,6 +33,12 @@ class PupilsViewmodel @Inject constructor(
 
     private val _pupilByIdState = MutableStateFlow<BaseResponse<PupilEntity>?>(null)
     val pupilByIdState: StateFlow<BaseResponse<PupilEntity>?> = _pupilByIdState
+
+    private val _isConnected = MutableStateFlow(networkChecker.isConnected())
+    val isConnected: StateFlow<Boolean> = _isConnected
+
+    private val _shouldRetryLoad = MutableStateFlow(false)
+    val shouldRetryLoad: StateFlow<Boolean> = _shouldRetryLoad
 
 
 
@@ -40,9 +50,13 @@ class PupilsViewmodel @Inject constructor(
         }
     }
 
+
+    fun checkNetwork() {
+        _isConnected.value = networkChecker.isConnected()
+    }
+
     fun clearPupilById() {
         _pupilByIdState.value = null
     }
-
 
 }
