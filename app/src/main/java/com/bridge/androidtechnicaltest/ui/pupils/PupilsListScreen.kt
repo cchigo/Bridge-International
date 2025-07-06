@@ -1,18 +1,14 @@
 package com.bridge.androidtechnicaltest.ui.pupils
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Refresh
@@ -50,6 +46,7 @@ fun PupilsListScreen(
     onNavigateToPupil: (pupilId: Int?) -> Unit,
     viewModel: PupilsViewmodel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val pupils = viewModel.pupilsPagingFlow.collectAsLazyPagingItems()
     val pupilByIdState = viewModel.pupilByIdState.collectAsState().value
@@ -57,27 +54,18 @@ fun PupilsListScreen(
     val shouldRetryLoad by viewModel.shouldRetryLoad.collectAsState()
     val isConnected by viewModel.isConnected.collectAsState()
 
-    val context = LocalContext.current
-
 
     LaunchedEffect(shouldRetryLoad, isConnected) {
         if (shouldRetryLoad && !isConnected) {
-            Log.d("REFRESH_TAG", "PupilsListScreen: Auto-waiting for network connection due to error...")
-            while (!isConnected) {
+           while (!isConnected) {
                 delay(3000)
-                Log.d("REFRESH_TAG", "PupilsListScreen: Auto-waiting for network connection due to error after delay...")
-
-                // If you removed handleLoadState, then viewModel.checkNetwork()
-                // is no longer being called here. Ensure isConnected updates reliably.
             }
             if (isConnected && shouldRetryLoad) {
-                Log.d("REFRESH_TAG", "PupilsListScreen: Network reconnected automatically, attempting refresh...")
-                pupils.refresh()
+              pupils.refresh()
             }
         }
     }
     pupils.PagingErrorHandler(context)
-
 
     Scaffold (
         topBar = {
